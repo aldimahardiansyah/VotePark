@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('code')->unique();
-            $table->string('npp')->comment('Nilai Perbandingan Proporsional');
-            $table->string('wide')->comment('Luas');
-            $table->string('tower')->comment('A/B/C/D/E/F/G');
+            $table->string('npp')->nullable()->comment('Nilai Perbandingan Proporsional');
+            $table->string('wide')->nullable()->comment('Luas');
+            $table->string('tower')->nullable()->comment('A/B/C/D/E/F/G');
             $table->timestamps();
         });
     }
