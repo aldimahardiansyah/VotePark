@@ -3,12 +3,14 @@
     <x-slot name="header">Units</x-slot>
 
     <div class="container">
+        <x-alert.success-and-error />
+
         <div class="row mb-3">
             <div class="col-md-6">
                 <h1>Units</h1>
             </div>
             <div class="col-md-6 text-end">
-                {{-- <a href="{{ route('unit.create') }}" class="btn btn-primary">Create Unit</a> --}}
+                <a href="{{ route('unit.create', ['password=' . request('password')]) }}" class="btn btn-primary">Add Unit</a>
                 {{-- Import unit --}}
 
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importUnitModal">
@@ -66,7 +68,6 @@
                 <tbody>
                     @foreach ($units as $unit)
                         <tr>
-                            {{-- <td>{{ $loop->iteration + ($units->currentPage() - 1) * $units->perPage() }}</td> --}}
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $unit->code }}</td>
                             <td>{{ $unit->npp ?? '-' }}</td>
@@ -74,8 +75,8 @@
                             <td>{{ $unit->user->name ?? '-' }}</td>
                             <td>{{ $unit->user->email ?? '-' }}</td>
                             <td class="d-flex">
-                                <a href="{{ route('unit.edit', $unit->id) }}" class="btn btn-warning me-2">Edit</a>
-                                <form action="{{ route('unit.destroy', $unit->id) }}" method="POST" style="display:inline;">
+                                <a href="{{ route('unit.edit', [$unit->id, 'password=' . request('password')]) }}" class="btn btn-warning me-2">Edit</a>
+                                <form action="{{ route('unit.destroy', [$unit->id, 'password=' . request('password')]) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">Delete</button>
@@ -85,8 +86,6 @@
                     @endforeach
                 </tbody>
             </table>
-
-            {{-- {{ $units->links() }} --}}
         @endif
     </div>
 </x-layout.main>
