@@ -63,6 +63,10 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <div class="text-end">
+                    <a href="{{ route('question.show', $question->id) }}" class="btn btn-link">View Details ></a>
+                </div>
             </div>
         </div>
     @endforeach

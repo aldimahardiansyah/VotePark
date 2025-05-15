@@ -20,7 +20,7 @@ class UnitController extends Controller
     public function create(Request $request)
     {
         if ($request->password !== '085779705274') {
-            return redirect()->back()->with('error', 'You are not authorized to edit unit.');
+            return redirect()->back()->with('error', 'You are not authorized to add unit.');
         }
 
         return view('contents.unit.create');
