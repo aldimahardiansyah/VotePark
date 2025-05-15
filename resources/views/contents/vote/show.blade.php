@@ -49,17 +49,25 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $totalNPPVotes = 0;
+                            $participantsNPP = $participants->sum('npp');
+                        @endphp
                         @foreach ($question->answers as $answer)
+                            @php
+                                $nppVotes = $answer->units->sum('npp');
+                                $totalNPPVotes += $nppVotes;
+                            @endphp
                             <tr>
                                 <td>{{ $answer->desc }}</td>
-                                <td>{{ $answer->npp_votes }}</td>
-                                <td>{{ number_format(($answer->npp_votes / $participants->sum('npp')) * 100, 2) }}%</td>
+                                <td>{{ $nppVotes }}</td>
+                                <td>{{ number_format(($nppVotes / $participantsNPP) * 100, 2) }}%</td>
                             </tr>
                         @endforeach
                         <tr>
                             <td class="text-danger">Tidak memilih</td>
-                            <td class="text-danger">{{ $participants->sum('npp') - $question->answers->sum('npp_votes') }}</td>
-                            <td class="text-danger">{{ number_format((($participants->sum('npp') - $question->answers->sum('npp_votes')) / $participants->sum('npp')) * 100, 2) }}%</td>
+                            <td class="text-danger">{{ $participantsNPP - $totalNPPVotes }}</td>
+                            <td class="text-danger">{{ number_format((($participantsNPP - $totalNPPVotes) / $participantsNPP) * 100, 2) }}%</td>
                         </tr>
                     </tbody>
                 </table>

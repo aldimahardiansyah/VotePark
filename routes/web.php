@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
@@ -18,3 +19,4 @@ Route::post('event/add-participant', [EventController::class, 'addParticipant'])
 Route::post('vote/import', [VoteController::class, 'import'])->name('vote.import');
 Route::get('vote/{vote}', [VoteController::class, 'show'])->name('vote.show');
 Route::delete('vote/{vote}', [VoteController::class, 'destroy'])->name('vote.destroy');
+Route::resource('question', QuestionController::class);
