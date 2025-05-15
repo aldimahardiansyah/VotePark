@@ -14,50 +14,21 @@
         </div>
     @endif
 
+    {{-- validation errors --}}
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-12 col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="text-center mt-3">Event Details</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <tr>
-                            <th>Name</th>
-                            <td>{{ $event->name }}</td>
-                        </tr>
-                        <tr>
-                            <th>Date</th>
-                            <td>{{ \Carbon\Carbon::parse($event->date)->format('l, d F Y') }}</td>
-                        </tr>
-                        <tr>
-                            <th>Participants</th>
-                            <td>{{ $event->units->count() }} Person</td>
-                        </tr>
-                        <tr>
-                            <th>Created At</th>
-                            <td>{{ $event->created_at }}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <div class="mt-3 card">
-                <div class="card-header">
-                    <h6 class="mt-2">Polling Percentage By Participants NPP</h6>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('event.polling-percentage') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="event_id" value="{{ $event->id }}">
-                        <div class="mb-3">
-                            <label for="file" class="form-label">Import Slido Polling Result</label>
-                            <input type="file" class="form-control" id="file" name="file" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary d-block mx-auto">Calculate</button>
-                    </form>
-                </div>
-            </div>
+            <x-event.vote :event="$event" />
         </div>
 
         <div class="col-12 col-md-8">

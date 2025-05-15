@@ -11,7 +11,7 @@ class UnitController extends Controller
 {
     public function index()
     {
-        $units = Unit::with('user')->paginate(20);
+        $units = Unit::with('user')->get();
 
         return view('contents.unit.index', compact('units'));
     }

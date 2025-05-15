@@ -51,7 +51,7 @@
         @if ($units->isEmpty())
             <p>No units found.</p>
         @else
-            <table class="table table-bordered">
+            <table class="table table-bordered" id="datatable">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -66,14 +66,15 @@
                 <tbody>
                     @foreach ($units as $unit)
                         <tr>
-                            <td>{{ $loop->iteration + ($units->currentPage() - 1) * $units->perPage() }}</td>
+                            {{-- <td>{{ $loop->iteration + ($units->currentPage() - 1) * $units->perPage() }}</td> --}}
+                            <td>{{ $loop->iteration }}</td>
                             <td>{{ $unit->code }}</td>
                             <td>{{ $unit->npp ?? '-' }}</td>
                             <td>{{ $unit->wide ?? '-' }}</td>
                             <td>{{ $unit->user->name ?? '-' }}</td>
                             <td>{{ $unit->user->email ?? '-' }}</td>
-                            <td>
-                                <a href="{{ route('unit.edit', $unit->id) }}" class="btn btn-warning">Edit</a>
+                            <td class="d-flex">
+                                <a href="{{ route('unit.edit', $unit->id) }}" class="btn btn-warning me-2">Edit</a>
                                 <form action="{{ route('unit.destroy', $unit->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -85,7 +86,7 @@
                 </tbody>
             </table>
 
-            {{ $units->links() }}
+            {{-- {{ $units->links() }} --}}
         @endif
     </div>
 </x-layout.main>

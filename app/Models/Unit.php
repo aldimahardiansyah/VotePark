@@ -17,4 +17,9 @@ class Unit extends Model
     {
         return $this->belongsToMany(Event::class, 'event_unit')->withPivot('unit_code');
     }
+
+    public function answers()
+    {
+        return $this->belongsToMany(Answer::class);
+    }
 }

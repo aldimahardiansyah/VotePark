@@ -17,4 +17,9 @@ class Event extends Model
     {
         return $this->units->pluck('pivot.unit_code')->toArray();
     }
+
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
 }
