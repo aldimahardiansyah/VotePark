@@ -1,3 +1,6 @@
+@php
+    $currentRoute = Route::currentRouteName();
+@endphp
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">Poll By NPP</a>
@@ -7,12 +10,13 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{ route('unit.index') }}">Unit</a>
+                    <a class="nav-link {{ $currentRoute == 'unit.index' ? 'active' : '' }}" aria-current="page" href="{{ route('unit.index') }}">Unit</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
+                    <a class="nav-link {{ $currentRoute == 'event.index' ? 'active' : '' }}" href="{{ route('event.index') }}">Events</a>
                 </li>
-                <li class="nav-item dropdown">
+
+                {{-- <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Dropdown
                     </a>
@@ -24,10 +28,7 @@
                         </li>
                         <li><a class="dropdown-item" href="#">Something else here</a></li>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-                </li>
+                </li> --}}
             </ul>
         </div>
     </div>
