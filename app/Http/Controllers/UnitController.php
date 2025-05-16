@@ -33,14 +33,17 @@ class UnitController extends Controller
             'npp' => 'required|numeric',
             'wide' => 'required|numeric',
             'user_name' => 'required|string|max:255',
-            'user_email' => 'required|email|max:255|unique:users,email',
+            'user_email' => 'required|email|max:255',
         ]);
 
-        $user = User::create([
-            'name' => $request->input('user_name'),
-            'email' => $request->input('user_email'),
-            'password' => bcrypt('password'), // Set a default password or handle it as per your requirement
-        ]);
+        // User first or create
+        $user = User::firstOrCreate(
+            ['email' => $request->input('user_email')],
+            [
+                'name' => $request->input('user_name'),
+                'password' => bcrypt('password'), // Set a default password or handle it as per your requirement
+            ]
+        );
 
         Unit::create([
             'code' => $request->input('code'),
