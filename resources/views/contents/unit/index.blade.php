@@ -3,6 +3,54 @@
     <x-slot name="header">Units</x-slot>
 
     <div class="container">
+        {{-- Summary table for towers A-G --}}
+        @php
+            $towers = ['A','B','C','D','E','F','G'];
+            $summary = [];
+            foreach ($towers as $tower) {
+                $filtered = $units->filter(fn($u) => \Illuminate\Support\Str::startsWith($u->code, $tower));
+                $summary[$tower] = [
+                    'count' => $filtered->count(),
+                    'sum_npp' => $filtered->sum(fn($u) => (float) $u->npp),
+                ];
+            }
+            $totalCount = $units->count();
+            $totalNpp = $units->sum(fn($u) => (float) $u->npp);
+        @endphp
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header text-white" style="background-color: #14b8a6;">
+                <h5 class="mb-0">Master Data Summary</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover  mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Tower</th>
+                                <th scope="col" class="text-end">Jumlah Unit</th>
+                                <th scope="col" class="text-end">Total NPP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($summary as $tower => $data)
+                                <tr>
+                                    <td><strong>{{ 'Tower ' . $tower }}</strong></td>
+                                    <td class="text-end">{{ $data['count'] }}</td>
+                                    <td class="text-end">{{ number_format($data['sum_npp'], 2) }}</td>
+                                </tr>
+                            @endforeach
+                            <tr class="table-dark fw-bold">
+                                <td>Total</td>
+                                <td class="text-end">{{ $totalCount }}</td>
+                                <td class="text-end">{{ number_format($totalNpp, 2) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <x-alert.success-and-error />
 
         <div class="row mb-3">
@@ -11,8 +59,6 @@
             </div>
             <div class="col-md-6 text-end">
                 <a href="{{ route('unit.create', ['password=' . request('password')]) }}" class="btn btn-primary">Add Unit</a>
-                {{-- Import unit --}}
-
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importUnitModal">
                     Import Unit
                 </button>
