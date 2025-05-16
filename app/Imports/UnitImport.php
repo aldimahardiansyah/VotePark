@@ -27,16 +27,17 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
 
         foreach ($rows as $row) {
             $user_name = $row[0];
-            $unit_code = $row[1];
-            $unit_npp = $row[2];
-            $unit_tower = $row[3];
+            $user_email = $row[1];
+            $unit_code = $row[2];
+            $unit_npp = $row[3];
+            $unit_tower = $row[4];
 
             // skip if unit already exist
             $unit = Unit::where('code', $unit_code)->exists();
             if ($unit) continue;
 
             $user = User::firstOrCreate(
-                ['email' => "$unit_code@park.id"],
+                ['email' => $user_email],
                 [
                     'name' => $user_name,
                     'password' => bcrypt('password'),
