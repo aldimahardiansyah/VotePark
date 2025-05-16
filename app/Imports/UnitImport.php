@@ -26,39 +26,35 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
         set_time_limit(300); // 5 menit
 
         foreach ($rows as $row) {
-            // $user_name = $row[1];
-            // $user_email = $row[2];
-            // $unit_code = $row[3];
+            $user_name = $row[0];
+            $unit_code = $row[1];
+            $unit_npp = $row[2];
+            $unit_tower = $row[3];
 
-            // // skip if unit already exist
-            // $unit = Unit::where('code', $unit_code)->exists();
-            // if ($unit) continue;
+            // skip if unit already exist
+            $unit = Unit::where('code', $unit_code)->exists();
+            if ($unit) continue;
 
-            // $user = User::firstOrCreate(
-            //     ['email' => $user_email],
-            //     [
-            //         'name' => $user_name,
-            //         'password' => bcrypt('password'),
-            //     ]
-            // );
+            $user = User::firstOrCreate(
+                ['email' => "$unit_code@park.id"],
+                [
+                    'name' => $user_name,
+                    'password' => bcrypt('password'),
+                ]
+            );
 
-            // Unit::updateOrCreate(
-            //     ['code' => $unit_code],
-            //     ['user_id' => $user->id]
-            // );
-
-            $npp = $row[1];
-            $unit_code = $row[2];
-            $unit_wide = $row[3];
-            $unit_tower = $row[4];
+            Unit::updateOrCreate(
+                ['code' => $unit_code],
+                ['user_id' => $user->id]
+            );
 
             // get unit by unit_code
             $unit = Unit::where('code', $unit_code)->first();
             if ($unit) {
                 // update unit
                 $unit->update([
-                    'npp' => $npp,
-                    'wide' => $unit_wide,
+                    'npp' => $unit_npp,
+                    'wide' => 1,
                     'tower' => $unit_tower,
                 ]);
             } else {
