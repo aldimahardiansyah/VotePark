@@ -5,7 +5,7 @@
         <div class="col-12 col-md-6">
             <table class="table">
                 <tr>
-                    <td>Version</td>
+                    <td>Session</td>
                     <td>
                         : Vote #{{ $vote->id }}
                     </td>
