@@ -9,7 +9,7 @@
     <x-table :columns="['id', 'name', 'date', 'attendance', 'action']">
         @foreach ($events as $event)
             <tr>
-                <td>{{ $event->id }}</td>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ $event->name }}</td>
                 <td>{{ $event->date }}</td>
                 <td>{{ $event->units->count() }}</td>

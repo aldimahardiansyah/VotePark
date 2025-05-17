@@ -36,9 +36,15 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
             $unit = Unit::where('code', $unit_code)->exists();
             if ($unit) continue;
 
+            if($user_email == null) {
+                Log::info('Email not found: ' . $user_email);
+                continue;
+            };
+
             $user = User::firstOrCreate(
                 ['email' => $user_email],
                 [
+                    'email' => $user_email,
                     'name' => $user_name,
                     'password' => bcrypt('password'),
                 ]

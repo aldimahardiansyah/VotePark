@@ -105,7 +105,8 @@
                         <th>No</th>
                         <th>Code</th>
                         <th>NPP</th>
-                        <th>Luas</th>
+                        <th>Tower</th>
+                        {{-- <th>Luas</th> --}}
                         <th>Tenant</th>
                         <th>Email</th>
                         <th>Actions</th>
@@ -117,7 +118,8 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $unit->code }}</td>
                             <td>{{ $unit->npp ?? '-' }}</td>
-                            <td>{{ $unit->wide ?? '-' }}</td>
+                            <td>Tower{{ $unit->tower ?? '-' }}</td>
+                            {{-- <td>{{ $unit->wide ?? '-' }}</td> --}}
                             <td>{{ $unit->user->name ?? '-' }}</td>
                             <td>{{ $unit->user->email ?? '-' }}</td>
                             <td class="d-flex">

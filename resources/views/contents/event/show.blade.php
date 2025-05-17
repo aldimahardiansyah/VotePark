@@ -16,6 +16,7 @@
                     <table class="table table-striped" id="datatable">
                         <thead>
                             <tr>
+                                <th>No</th>
                                 <th>Name</th>
                                 <th>NPP</th>
                                 <th>Unit</th>
@@ -26,6 +27,7 @@
                         <tbody>
                             @foreach ($event->units as $unit)
                                 <tr>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $unit->user->name }}</td>
                                     <td>{{ $unit->npp ?? '-' }}</td>
                                     <td>{{ $unit->code }}</td>
