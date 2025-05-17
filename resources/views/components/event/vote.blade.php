@@ -1,3 +1,6 @@
+@php
+    $towers = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+@endphp
 <div class="card">
     <div class="card-header">
         <h5 class="text-center mt-3">Event Details</h5>
@@ -13,8 +16,22 @@
                 <td>{{ \Carbon\Carbon::parse($event->date)->format('l, d F Y') }}</td>
             </tr>
             <tr>
-                <th>Participants</th>
-                <td>{{ $event->units->pluck('user')->unique()->count() }} Person / {{ $event->units->count() }} Unit</td>
+                <th>Total Participants</th>
+                <td>
+                    {{ $event->units->pluck('user')->unique()->count() }} Person / {{ $event->units->count() }} Unit
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    @foreach ($towers as $tower)
+                        @if ($event->units->where('tower', $tower)->count() > 0)
+                            <div class="border-bottom">
+                                -<span class="ms-2 small text-secondary">Tower {{ $tower }}: &nbsp;{{ $event->units->where('tower', $tower)->count() }} Unit</span>
+                            </div>
+                        @endif
+                    @endforeach
+                </td>
             </tr>
             <tr>
                 <th>Total NPP</th>
