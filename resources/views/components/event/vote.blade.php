@@ -54,9 +54,25 @@
             @csrf
             <input type="hidden" name="event_id" value="{{ $event->id }}">
             <div class="mb-3">
-                <label for="file" class="form-label">Import Slido Polling Result</label>
-                <input type="file" class="form-control" id="file" name="file" required>
+                <label for="file" class="form-label">Import <a href="{{ asset('polling-result/slido.xlsx') }}">Slido</a> Polling Result</label>
+                <input type="file" class="form-control" id="file" name="file">
             </div>
+
+            <div class="mb-3 text-center">
+                {{-- Or --}}
+                {{-- devider --}}
+                <div class="d-flex align-items-center justify-content-center">
+                    <hr class="w-25">
+                    <span class="mx-2">Or</span>
+                    <hr class="w-25">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="file-gform" class="form-label">Import <a href="{{ asset('polling-result/gfrom.xlsx') }}">Google Form</a> Polling Result</label>
+                <input type="file" class="form-control" id="file-gform" name="file-gform">
+            </div>
+
             <button type="submit" class="btn btn-primary d-block mx-auto">Import</button>
         </form>
 

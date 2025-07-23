@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\VoteGFormImport;
 use App\Imports\VoteImport;
 use App\Models\Question;
 use App\Models\Vote;
@@ -14,10 +15,23 @@ class VoteController extends Controller
     {
         $request->validate([
             'event_id' => 'required|exists:events,id',
-            'file' => 'required|max:2048',
+            'file' => 'nullable|max:20480',
+            'file-gform' => 'nullable|max:20480|mimes:xlsx,csv,xls',
         ]);
 
-        Excel::import(new VoteImport($request->event_id), $request->file('file'));
+        if (!$request->hasFile('file-gform') && !$request->hasFile('file')) {
+            return redirect()->back()->with('error', 'Please upload a file.');
+        }
+
+        if ($request->hasFile('file-gform') && $request->hasFile('file')) {
+            return redirect()->back()->with('error', 'Please upload only one file at a time.');
+        }
+
+        if ($request->hasFile('file-gform')) {
+            Excel::import(new VoteGFormImport($request->event_id), $request->file('file-gform'));
+        } else {
+            Excel::import(new VoteImport($request->event_id), $request->file('file'));
+        }
 
         return redirect()->back()->with('success', 'File imported successfully.');
     }
