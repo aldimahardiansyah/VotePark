@@ -3,21 +3,6 @@
     <x-slot name="header">Units</x-slot>
 
     <div class="container">
-        {{-- Summary table for towers A-G --}}
-        @php
-            $towers = ['A','B','C','D','E','F','G'];
-            $summary = [];
-            foreach ($towers as $tower) {
-                $filtered = $units->filter(fn($u) => \Illuminate\Support\Str::startsWith($u->code, $tower));
-                $summary[$tower] = [
-                    'count' => $filtered->count(),
-                    'sum_npp' => $filtered->sum(fn($u) => (float) $u->npp),
-                ];
-            }
-            $totalCount = $units->count();
-            $totalNpp = $units->sum(fn($u) => (float) $u->npp);
-        @endphp
-
         <div class="card mb-4 shadow-sm">
             <div class="card-header text-white" style="background-color: #14b8a6;">
                 <h5 class="mb-0">Master Data Summary</h5>
@@ -33,13 +18,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($summary as $tower => $data)
+                            @foreach ($towers as $tower => $data)
                                 <tr>
-                                    <td><strong>{{ 'Tower ' . $tower }}</strong></td>
+                                    <td><strong>{{ 'Tower ' . $tower ?? '-' }}</strong></td>
                                     <td class="text-end">{{ $data['count'] }}</td>
-                                    <td class="text-end">{{ number_format($data['sum_npp'], 2) }}</td>
+                                    <td class="text-end">{{ number_format($data['total_npp'], 2) }}</td>
                                 </tr>
                             @endforeach
+                            @php
+                                $totalCount = $towers->sum(fn($data) => $data['count']);
+                                $totalNpp = $towers->sum(fn($data) => $data['total_npp']);
+                            @endphp
+
                             <tr class="table-dark fw-bold">
                                 <td>Total</td>
                                 <td class="text-end">{{ $totalCount }}</td>

@@ -6,6 +6,7 @@ use App\Imports\UnitImport;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UnitController extends Controller
@@ -14,7 +15,18 @@ class UnitController extends Controller
     {
         $units = Unit::with('user')->get();
 
-        return view('contents.unit.index', compact('units'));
+        // Get the count and total NPP for each tower
+        $towers = Unit::select('tower', DB::raw('count(*) as count'), DB::raw('SUM(npp) as total_npp'))
+            ->groupBy('tower')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->tower => [
+                    'count' => $item->count,
+                    'total_npp' => $item->total_npp,
+                ]];
+            });
+
+        return view('contents.unit.index', compact('units', 'towers'));
     }
 
     public function create(Request $request)
