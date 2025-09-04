@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'site_id',
+        'unit_code',
+        'active',
     ];
 
     /**
@@ -43,11 +47,46 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'active' => 'boolean',
         ];
     }
 
     public function units()
     {
         return $this->hasMany(Unit::class);
+    }
+
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
+    }
+
+    public function createdEvents()
+    {
+        return $this->hasMany(Event::class, 'created_by');
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
+    public function isAdminSite(): bool
+    {
+        return $this->role === 'admin_site';
+    }
+
+    public function isTenant(): bool
+    {
+        return $this->role === 'tenant';
+    }
+
+    public function canAccessSite(Site $site): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+        
+        return $this->site_id === $site->id;
     }
 }
