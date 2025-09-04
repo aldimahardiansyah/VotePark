@@ -13,18 +13,34 @@ class UnitController extends Controller
 {
     public function index()
     {
-        $units = Unit::with('user')->get();
-
-        // Get the count and total NPP for each tower
-        $towers = Unit::select('tower', DB::raw('count(*) as count'), DB::raw('SUM(npp) as total_npp'))
-            ->groupBy('tower')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->tower => [
-                    'count' => $item->count,
-                    'total_npp' => $item->total_npp,
-                ]];
-            });
+        $user = auth()->user();
+        
+        if ($user->isSuperAdmin()) {
+            $units = Unit::with('user')->get();
+            // Get the count and total NPP for each tower
+            $towers = Unit::select('tower', DB::raw('count(*) as count'), DB::raw('SUM(npp) as total_npp'))
+                ->groupBy('tower')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item->tower => [
+                        'count' => $item->count,
+                        'total_npp' => $item->total_npp,
+                    ]];
+                });
+        } else {
+            $units = Unit::where('site_id', $user->site_id)->with('user')->get();
+            // Get the count and total NPP for each tower (site-specific)
+            $towers = Unit::where('site_id', $user->site_id)
+                ->select('tower', DB::raw('count(*) as count'), DB::raw('SUM(npp) as total_npp'))
+                ->groupBy('tower')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item->tower => [
+                        'count' => $item->count,
+                        'total_npp' => $item->total_npp,
+                    ]];
+                });
+        }
 
         return view('contents.unit.index', compact('units', 'towers'));
     }
@@ -36,6 +52,8 @@ class UnitController extends Controller
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
         $request->validate([
             'code' => 'required|string|max:10|unique:units,code',
             'npp' => 'required|numeric',
@@ -45,11 +63,13 @@ class UnitController extends Controller
         ]);
 
         // User first or create
-        $user = User::firstOrCreate(
+        $userModel = User::firstOrCreate(
             ['email' => $request->input('user_email')],
             [
                 'name' => $request->input('user_name'),
                 'password' => bcrypt('password'), // Set a default password or handle it as per your requirement
+                'role' => 'tenant',
+                'site_id' => $user->isSuperAdmin() ? null : $user->site_id, // Assign site for non-superadmin
             ]
         );
 
@@ -57,7 +77,8 @@ class UnitController extends Controller
             'code' => $request->input('code'),
             'npp' => $request->input('npp'),
             'wide' => $request->input('wide'),
-            'user_id' => $user->id,
+            'user_id' => $userModel->id,
+            'site_id' => $user->isSuperAdmin() ? null : $user->site_id, // Assign site for non-superadmin
         ]);
 
         return redirect()->back()->with('success', 'Unit created successfully.');
