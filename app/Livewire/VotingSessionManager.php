@@ -142,14 +142,23 @@ class VotingSessionManager extends Component
 
     public function pauseSession()
     {
-        $this->votingSession->update([
-            'status' => 'paused',
-        ]);
+        try {
+            if (!$this->votingSession) {
+                session()->flash('error', 'No voting session found.');
+                return;
+            }
 
-        $this->loadVotingSession();
-        $this->dispatch('voting-session-paused', $this->votingSession->id);
-        
-        session()->flash('message', 'Voting session paused.');
+            $this->votingSession->update([
+                'status' => 'paused',
+            ]);
+
+            $this->loadVotingSession();
+            $this->dispatch('voting-session-paused', $this->votingSession->id);
+            
+            session()->flash('message', 'Voting session paused.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error pausing session: ' . $e->getMessage());
+        }
     }
 
     public function resumeSession()
@@ -166,21 +175,30 @@ class VotingSessionManager extends Component
 
     public function endSession()
     {
-        // End current question if active
-        if ($this->currentQuestionId) {
-            $this->endCurrentQuestion();
+        try {
+            if (!$this->votingSession) {
+                session()->flash('error', 'No voting session found.');
+                return;
+            }
+
+            // End current question if active
+            if ($this->currentQuestionId) {
+                $this->endCurrentQuestion();
+            }
+
+            $this->votingSession->update([
+                'status' => 'completed',
+                'ended_at' => now(),
+                'current_question_id' => null,
+            ]);
+
+            $this->loadVotingSession();
+            $this->dispatch('voting-session-ended', $this->votingSession->id);
+            
+            session()->flash('message', 'Voting session completed!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error ending session: ' . $e->getMessage());
         }
-
-        $this->votingSession->update([
-            'status' => 'completed',
-            'ended_at' => now(),
-            'current_question_id' => null,
-        ]);
-
-        $this->loadVotingSession();
-        $this->dispatch('voting-session-ended', $this->votingSession->id);
-        
-        session()->flash('message', 'Voting session completed!');
     }
 
     public function activateQuestion($questionId)
@@ -215,13 +233,17 @@ class VotingSessionManager extends Component
 
     public function endCurrentQuestion()
     {
-        if ($this->currentQuestionId) {
-            Question::where('id', $this->currentQuestionId)->update([
-                'status' => 'completed',
-                'ended_at' => now(),
-            ]);
+        try {
+            if ($this->currentQuestionId) {
+                Question::where('id', $this->currentQuestionId)->update([
+                    'status' => 'completed',
+                    'ended_at' => now(),
+                ]);
 
-            $this->dispatch('question-ended', $this->currentQuestionId);
+                $this->dispatch('question-ended', $this->currentQuestionId);
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error ending current question: ' . $e->getMessage());
         }
     }
 

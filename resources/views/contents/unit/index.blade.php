@@ -1,129 +1,163 @@
-<x-layout.main>
-    <x-slot name="title">Units</x-slot>
-    <x-slot name="header">Units</x-slot>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Units Management') }}
+        </h2>
+    </x-slot>
 
-    <div class="container">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header text-white" style="background-color: #14b8a6;">
-                <h5 class="mb-0">Master Data Summary</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover  mb-0">
-                        <thead class="table-light">
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Master Data Summary -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 bg-teal-500 text-white">
+                    <h3 class="text-lg font-semibold">Master Data Summary</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th scope="col">Tower</th>
-                                <th scope="col" class="text-end">Jumlah Unit</th>
-                                <th scope="col" class="text-end">Total NPP</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    Tower
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    Jumlah Unit
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    Total NPP
+                                </th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($towers as $tower => $data)
-                                <tr>
-                                    <td><strong>{{ 'Tower ' . $tower ?? '-' }}</strong></td>
-                                    <td class="text-end">{{ $data['count'] }}</td>
-                                    <td class="text-end">{{ number_format($data['total_npp'], 2) }}</td>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {{ 'Tower ' . $tower ?? '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-right">
+                                        {{ $data['count'] }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-right">
+                                        {{ number_format($data['total_npp'], 2) }}
+                                    </td>
                                 </tr>
                             @endforeach
                             @php
                                 $totalCount = $towers->sum(fn($data) => $data['count']);
                                 $totalNpp = $towers->sum(fn($data) => $data['total_npp']);
                             @endphp
-
-                            <tr class="table-dark fw-bold">
-                                <td>Total</td>
-                                <td class="text-end">{{ $totalCount }}</td>
-                                <td class="text-end">{{ number_format($totalNpp, 2) }}</td>
+                            <tr class="bg-gray-900 dark:bg-gray-600 text-white font-bold">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">Total</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">{{ $totalCount }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">{{ number_format($totalNpp, 2) }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
-        <x-alert.success-and-error />
+            <!-- Success/Error Messages -->
+            @if (session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <h1>Units</h1>
-            </div>
-            <div class="col-md-6 text-end">
-                <a href="{{ route('unit.create', ['password=' . request('password')]) }}" class="btn btn-primary">Add Unit</a>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importUnitModal">
-                    Import Unit
-                </button>
-            </div>
-        </div>
+            <!-- Units Table -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold">Units</h3>
+                        @can('create', App\Models\Unit::class)
+                            <a href="{{ route('unit.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+                                Add New Unit
+                            </a>
+                        @endcan
+                    </div>
 
-        <!-- Import Unit Modal -->
-        <div class="modal fade" id="importUnitModal" tabindex="-1" aria-labelledby="importUnitModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('unit.import') }}" method="POST" enctype="multipart/form-data">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="importUnitModalLabel">Import Unit</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- Units Data Table -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Unit Code
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Tower
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Owner
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        NPP
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Wide (m²)
+                                    </th>
+                                    @can('update', App\Models\Unit::class)
+                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    @endcan
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                @forelse ($units as $unit)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {{ $unit->code }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                            {{ $unit->tower }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                            {{ $unit->user->name ?? 'No owner assigned' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-right">
+                                            {{ number_format($unit->npp, 2) }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-right">
+                                            {{ number_format($unit->wide, 2) }}
+                                        </td>
+                                        @can('update', $unit)
+                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                <a href="{{ route('unit.edit', $unit->id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                    Edit
+                                                </a>
+                                            </td>
+                                        @endcan
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-300">
+                                            No units found.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Import Section -->
+                    @can('create', App\Models\Unit::class)
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h4 class="text-md font-semibold mb-4">Import Units from Excel</h4>
+                            <form action="{{ route('unit.import') }}" method="POST" enctype="multipart/form-data" class="flex items-center space-x-4">
+                                @csrf
+                                <input type="file" name="file" class="block w-full text-sm text-gray-500 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept=".xlsx,.xls">
+                                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+                                    Import
+                                </button>
+                            </form>
                         </div>
-                        <div class="modal-body">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="file" class="form-label">Choose file (xlsx)</label>
-                                <input type="file" class="form-control" id="file" name="file" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Import</button>
-                        </div>
-                    </form>
+                    @endcan
                 </div>
             </div>
         </div>
-
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if ($units->isEmpty())
-            <p>No units found.</p>
-        @else
-            <table class="table table-bordered" id="datatable">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Code</th>
-                        <th>NPP</th>
-                        <th>Tower</th>
-                        {{-- <th>Luas</th> --}}
-                        <th>Tenant</th>
-                        <th>Email</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($units as $unit)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $unit->code }}</td>
-                            <td>{{ $unit->npp ?? '-' }}</td>
-                            <td>Tower{{ $unit->tower ?? '-' }}</td>
-                            {{-- <td>{{ $unit->wide ?? '-' }}</td> --}}
-                            <td>{{ $unit->user->name ?? '-' }}</td>
-                            <td>{{ $unit->user->email ?? '-' }}</td>
-                            <td class="d-flex">
-                                <a href="{{ route('unit.edit', [$unit->id, 'password=' . request('password')]) }}" class="btn btn-warning me-2">Edit</a>
-                                <form action="{{ route('unit.destroy', [$unit->id, 'password=' . request('password')]) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
     </div>
-</x-layout.main>
+</x-app-layout>
