@@ -4,6 +4,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\VoteController;
+use App\Http\Controllers\VotingController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,7 +43,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     
     // Routes that all authenticated users can access
-    // Add voting routes here
+    
+    // Voting routes
+    Route::get('event/{event}/vote', [VotingController::class, 'vote'])
+        ->name('voting.vote')
+        ->middleware('role:tenant');
+    
+    Route::get('event/{event}/display', [VotingController::class, 'display'])
+        ->name('voting.display'); // Public display, no role restriction
+        
+    // Voting management (admin only)
+    Route::get('event/{event}/manage-voting', [VotingController::class, 'manage'])
+        ->name('voting.manage')
+        ->middleware('role:superadmin,admin_site');
 });
 
 require __DIR__.'/auth.php';

@@ -93,9 +93,15 @@
                             <a href="{{ route('question.index') }}" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-center">
                                 Manage Questions
                             </a>
-                            <a href="#" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-center">
-                                Start Voting
-                            </a>
+                            @if(auth()->user()->site && auth()->user()->site->events->count() > 0)
+                                <a href="{{ route('voting.manage', auth()->user()->site->events->first()) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-center">
+                                    Start Voting
+                                </a>
+                            @else
+                                <span class="bg-gray-400 text-white font-bold py-2 px-4 rounded text-center cursor-not-allowed">
+                                    Start Voting
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -36,4 +36,16 @@ class Event extends Model
     {
         return $this->hasMany(Vote::class);
     }
+
+    public function votingSessions()
+    {
+        return $this->hasMany(VotingSession::class);
+    }
+
+    public function getActiveVotingSession()
+    {
+        return $this->votingSessions()
+            ->where('status', 'active')
+            ->first();
+    }
 }
