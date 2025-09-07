@@ -38,7 +38,7 @@
                             @enderror
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <!-- NPP -->
                             <div>
                                 <label for="npp" class="block text-sm font-medium text-gray-700 dark:text-gray-300">NPP</label>
@@ -68,11 +68,26 @@
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <!-- Tower -->
+                            <div>
+                                <label for="tower" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tower</label>
+                                <input type="text" 
+                                       id="tower" 
+                                       name="tower" 
+                                       value="{{ old('tower') }}" 
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm @error('tower') border-red-500 @enderror" 
+                                       placeholder="e.g., Tower A"
+                                       required>
+                                @error('tower')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Divider -->
                         <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Owner Information</h3>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Owner Information (Optional)</h3>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -83,8 +98,7 @@
                                        id="user_name" 
                                        name="user_name" 
                                        value="{{ old('user_name') }}" 
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm @error('user_name') border-red-500 @enderror" 
-                                       required>
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm @error('user_name') border-red-500 @enderror">
                                 @error('user_name')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -97,8 +111,7 @@
                                        id="user_email" 
                                        name="user_email" 
                                        value="{{ old('user_email') }}" 
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm @error('user_email') border-red-500 @enderror" 
-                                       required>
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm @error('user_email') border-red-500 @enderror">
                                 @error('user_email')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror

@@ -40,14 +40,13 @@ class UserSeeder extends Seeder
             ]);
 
             // Create sample tenants
-            for ($i = 1; $i <= 3; $i++) {
+            for ($i = 1; $i <= 5; $i++) {
                 User::create([
                     'name' => $site->name . ' Tenant ' . $i,
                     'email' => 'tenant' . $i . '@' . $site->slug . '.com',
                     'password' => Hash::make('password'),
                     'role' => 'tenant',
                     'site_id' => $site->id,
-                    'unit_code' => $site->slug . '-' . str_pad($i, 3, '0', STR_PAD_LEFT),
                     'active' => true,
                 ]);
             }

@@ -53,7 +53,12 @@ class User extends Authenticatable
 
     public function units()
     {
-        return $this->hasMany(Unit::class);
+        return $this->belongsToMany(Unit::class, 'user_unit')->withTimestamps();
+    }
+
+    public function ownedUnits()
+    {
+        return $this->belongsToMany(Unit::class, 'user_unit')->withTimestamps();
     }
 
     public function site()

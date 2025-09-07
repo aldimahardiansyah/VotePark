@@ -116,7 +116,7 @@
                                             {{ $unit->tower }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                                            {{ $unit->user->name ?? 'No owner assigned' }}
+                                            {{ $unit->users->first()->name ?? 'No owner assigned' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-right">
                                             {{ number_format($unit->npp, 2) }}
