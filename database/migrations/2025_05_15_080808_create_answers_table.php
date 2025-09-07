@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('answers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
-            $table->longText('desc');
+            $table->longText('answer'); // Changed from 'desc' to 'answer'
             $table->integer('votes')->default(0);
             $table->double('npp_votes')->default(0);
             $table->timestamps();

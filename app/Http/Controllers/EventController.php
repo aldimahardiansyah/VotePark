@@ -14,7 +14,14 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::all();
+        $user = auth()->user();
+        
+        if ($user->isSuperAdmin()) {
+            $events = Event::with('site')->get();
+        } else {
+            $events = Event::where('site_id', $user->site_id)->with('site')->get();
+        }
+        
         return view('contents.event.index', compact('events'));
     }
 
@@ -31,12 +38,31 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $user = auth()->user();
+        
+        $validation = [
             'name' => 'required|string|max:255',
             'date' => 'required|date',
-        ]);
+            'description' => 'nullable|string|max:1000',
+        ];
+        
+        // Only superadmin can select site, others get auto-assigned
+        if ($user->isSuperAdmin()) {
+            $validation['site_id'] = 'required|exists:sites,id';
+        }
+        
+        $request->validate($validation);
+        
+        $eventData = $request->only(['name', 'date', 'description']);
+        
+        // Auto-assign site for non-superadmin users
+        if ($user->isSuperAdmin()) {
+            $eventData['site_id'] = $request->site_id;
+        } else {
+            $eventData['site_id'] = $user->site_id;
+        }
 
-        Event::create($request->all());
+        Event::create($eventData);
 
         return redirect()->route('event.index')->with('success', 'Event created successfully.');
     }

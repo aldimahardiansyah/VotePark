@@ -8,9 +8,25 @@ class Unit extends Model
 {
     protected $guarded = ['id'];
 
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_unit')->withTimestamps();
+    }
+
+    public function owners()
+    {
+        return $this->belongsToMany(User::class, 'user_unit')->withTimestamps();
+    }
+
+    // For backward compatibility, get the primary owner
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class, 'user_unit')->withTimestamps()->first();
     }
 
     public function event()

@@ -3,10 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\Question;
+use App\Models\Event;
+use App\Models\VotingSession;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
 {
+    public function index()
+    {
+        $user = auth()->user();
+        
+        // Get events based on user role
+        if ($user->isSuperAdmin()) {
+            $events = Event::with('votingSessions.questions')->get();
+        } else {
+            $events = Event::where('site_id', $user->site_id)
+                          ->with('votingSessions.questions')
+                          ->get();
+        }
+        
+        return view('contents.question.index', compact('events'));
+    }
+
+    public function create(Request $request)
+    {
+        $user = auth()->user();
+        
+        // Get events for dropdown based on user role
+        if ($user->isSuperAdmin()) {
+            $events = Event::all();
+        } else {
+            $events = Event::where('site_id', $user->site_id)->get();
+        }
+        
+        $selectedEventId = $request->get('event_id');
+        $selectedEvent = $selectedEventId ? Event::find($selectedEventId) : null;
+        
+        return view('contents.question.create', compact('events', 'selectedEvent'));
+    }
+
     public function show($id)
     {
         $question = Question::find($id);
