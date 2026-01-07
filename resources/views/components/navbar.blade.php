@@ -9,12 +9,46 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link {{ $currentRoute == 'unit.index' ? 'active' : '' }}" aria-current="page" href="{{ route('unit.index') }}">Master Data</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ $currentRoute == 'event.index' ? 'active' : '' }}" href="{{ route('event.index') }}">Events</a>
-                </li>
+                @auth
+                    <li class="nav-item">
+                        <a class="nav-link {{ $currentRoute == 'unit.index' ? 'active' : '' }}" aria-current="page" href="{{ route('unit.index') }}">Master Data</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $currentRoute == 'event.index' ? 'active' : '' }}" href="{{ route('event.index') }}">Events</a>
+                    </li>
+                    @if(auth()->user()->isHoldingAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_starts_with($currentRoute, 'site.') ? 'active' : '' }}" href="{{ route('site.index') }}">Sites</a>
+                        </li>
+                    @endif
+                @endauth
+            </ul>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                @guest
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('register') }}">Register</a>
+                    </li>
+                @else
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ auth()->user()->name }}
+                            @if(auth()->user()->role !== 'user')
+                                <span class="badge bg-primary">{{ str_replace('_', ' ', ucwords(auth()->user()->role, '_')) }}</span>
+                            @endif
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                @endguest
             </ul>
         </div>
     </div>

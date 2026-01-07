@@ -15,11 +15,18 @@ class Unit extends Model
 
     public function event()
     {
-        return $this->belongsToMany(Event::class, 'event_unit')->withPivot('unit_code');
+        return $this->belongsToMany(Event::class, 'event_unit')
+            ->withPivot('unit_code', 'status', 'registered_email')
+            ->withTimestamps();
     }
 
     public function answers()
     {
         return $this->belongsToMany(Answer::class);
+    }
+
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
     }
 }

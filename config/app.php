@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Default Email Domain
+    |--------------------------------------------------------------------------
+    |
+    | This domain is used for generating default email addresses when
+    | importing units without email, and for identifying internal emails
+    | that require additional email input during event registration.
+    |
+    */
+
+    'default_email_domain' => env('DEFAULT_EMAIL_DOMAIN', 'proapps.id'),
+
 ];

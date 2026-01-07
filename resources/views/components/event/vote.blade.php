@@ -1,5 +1,6 @@
 @php
     $towers = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    $approvedUnits = $event->approvedUnits;
 @endphp
 <div class="card">
     <div class="card-header">
@@ -16,18 +17,28 @@
                 <td>{{ \Carbon\Carbon::parse($event->date)->format('l, d F Y') }}</td>
             </tr>
             <tr>
+                <th>Requires Approval</th>
+                <td>
+                    @if($event->requires_approval)
+                        <span class="badge bg-warning">Yes</span>
+                    @else
+                        <span class="badge bg-secondary">No</span>
+                    @endif
+                </td>
+            </tr>
+            <tr>
                 <th>Total Participants</th>
                 <td>
-                    {{ $event->units->pluck('user')->unique()->count() }} Person / {{ $event->units->count() }} Unit
+                    {{ $approvedUnits->pluck('user')->unique()->count() }} Person / {{ $approvedUnits->count() }} Unit
                 </td>
             </tr>
             <tr>
                 <td></td>
                 <td>
                     @foreach ($towers as $tower)
-                        @if ($event->units->where('tower', $tower)->count() > 0)
+                        @if ($approvedUnits->where('tower', $tower)->count() > 0)
                             <div class="border-bottom">
-                                -<span class="ms-2 small text-secondary">Tower {{ $tower }}: &nbsp;{{ $event->units->where('tower', $tower)->count() }} Unit</span>
+                                -<span class="ms-2 small text-secondary">Tower {{ $tower }}: &nbsp;{{ $approvedUnits->where('tower', $tower)->count() }} Unit</span>
                             </div>
                         @endif
                     @endforeach
@@ -35,7 +46,7 @@
             </tr>
             <tr>
                 <th>Total NPP</th>
-                <td>{{ $event->units->sum('npp') }}%</td>
+                <td>{{ $approvedUnits->sum('npp') }}%</td>
             </tr>
             <tr>
                 <th>Created At</th>

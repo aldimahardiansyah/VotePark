@@ -36,16 +36,18 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
             $unit = Unit::where('code', $unit_code)->exists();
             if ($unit) continue;
 
-            if($user_email == null) {
-                Log::info('Email not found: ' . $user_email);
-                continue;
-            };
+            // Generate default email if not provided
+            if (empty($user_email)) {
+                $defaultDomain = config('app.default_email_domain', 'proapps.id');
+                $user_email = strtolower($unit_code) . '@' . $defaultDomain;
+                Log::info('Generated default email for unit ' . $unit_code . ': ' . $user_email);
+            }
 
             $user = User::firstOrCreate(
                 ['email' => $user_email],
                 [
                     'email' => $user_email,
-                    'name' => $user_name,
+                    'name' => $user_name ?? 'Unit ' . $unit_code,
                     'password' => bcrypt('password'),
                 ]
             );
