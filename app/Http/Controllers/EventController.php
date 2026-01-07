@@ -219,10 +219,11 @@ class EventController extends Controller
 
         $unit = Unit::find($request->unit_id);
         $userEmail = $unit->user->email ?? '';
+        $defaultDomain = '@' . config('app.default_email_domain', 'proapps.id');
 
-        // Check if email ends with @proapps.id and custom email is required
+        // Check if email ends with default domain and custom email is required
         $registeredEmail = $userEmail;
-        if (str_ends_with($userEmail, '@proapps.id')) {
+        if (str_ends_with($userEmail, $defaultDomain)) {
             $request->validate([
                 'email' => 'required|email',
             ]);

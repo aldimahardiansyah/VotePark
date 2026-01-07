@@ -38,7 +38,8 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
 
             // Generate default email if not provided
             if (empty($user_email)) {
-                $user_email = strtolower($unit_code) . '@proapps.id';
+                $defaultDomain = config('app.default_email_domain', 'proapps.id');
+                $user_email = strtolower($unit_code) . '@' . $defaultDomain;
                 Log::info('Generated default email for unit ' . $unit_code . ': ' . $user_email);
             }
 

@@ -114,7 +114,7 @@
                         <div class="mb-3 mt-3" id="emailField" style="display: none;">
                             <label for="email" class="form-label fw-bold">Your Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address">
-                            <div class="form-text">This unit uses a default @proapps.id email. Please provide your actual email address.</div>
+                            <div class="form-text">This unit uses a default @{{ config('app.default_email_domain', 'proapps.id') }} email. Please provide your actual email address.</div>
                         </div>
 
                         <div class="d-grid mt-4">
@@ -136,10 +136,15 @@
         </div>
     </div>
 
+    @php
+        $defaultDomain = '@' . config('app.default_email_domain', 'proapps.id');
+    @endphp
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            var defaultDomain = '{{ $defaultDomain }}';
+
             $('#unit_id').select2({
                 theme: 'bootstrap-5',
                 placeholder: '-- Select Unit --',
@@ -158,8 +163,8 @@
                     $('#unitInfo').addClass('show');
                     $('#submitBtn').prop('disabled', false);
 
-                    // Check if email ends with @proapps.id
-                    if (info.email && info.email.endsWith('@proapps.id')) {
+                    // Check if email ends with default domain
+                    if (info.email && info.email.endsWith(defaultDomain)) {
                         $('#emailField').show();
                         $('#email').prop('required', true);
                     } else {
