@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Imports\ParticipantImport;
 use App\Models\Event;
+use App\Models\Site;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,7 +18,14 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::all();
+        $user = auth()->user();
+        
+        $query = Event::query();
+        if ($user->isSiteAdmin() && $user->site_id) {
+            $query->where('site_id', $user->site_id);
+        }
+        
+        $events = $query->get();
         return view('contents.event.index', compact('events'));
     }
 
@@ -26,7 +34,11 @@ class EventController extends Controller
      */
     public function create()
     {
-        return view('contents.event.create');
+        $user = auth()->user();
+        $sites = $user->isHoldingAdmin() ? Site::all() : collect();
+        $userSiteId = $user->site_id;
+        
+        return view('contents.event.create', compact('sites', 'userSiteId'));
     }
 
     /**
@@ -34,16 +46,27 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $user = auth()->user();
+        
+        $rules = [
             'name' => 'required|string|max:255',
             'date' => 'required|date',
             'requires_approval' => 'nullable|boolean',
-        ]);
+        ];
+        
+        if ($user->isHoldingAdmin()) {
+            $rules['site_id'] = 'nullable|exists:sites,id';
+        }
+        
+        $request->validate($rules);
+
+        $siteId = $user->isHoldingAdmin() ? $request->input('site_id') : $user->site_id;
 
         Event::create([
             'name' => $request->name,
             'date' => $request->date,
             'requires_approval' => $request->has('requires_approval'),
+            'site_id' => $siteId,
         ]);
 
         return redirect()->route('event.index')->with('success', 'Event created successfully.');
@@ -63,7 +86,11 @@ class EventController extends Controller
      */
     public function edit(Event $event)
     {
-        return view('contents.event.edit', compact('event'));
+        $user = auth()->user();
+        $sites = $user->isHoldingAdmin() ? Site::all() : collect();
+        $userSiteId = $user->site_id;
+        
+        return view('contents.event.edit', compact('event', 'sites', 'userSiteId'));
     }
 
     /**
@@ -71,17 +98,31 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        $request->validate([
+        $user = auth()->user();
+        
+        $rules = [
             'name' => 'required|string|max:255',
             'date' => 'required|date',
             'requires_approval' => 'nullable|boolean',
-        ]);
+        ];
+        
+        if ($user->isHoldingAdmin()) {
+            $rules['site_id'] = 'nullable|exists:sites,id';
+        }
+        
+        $request->validate($rules);
 
-        $event->update([
+        $updateData = [
             'name' => $request->name,
             'date' => $request->date,
             'requires_approval' => $request->has('requires_approval'),
-        ]);
+        ];
+        
+        if ($user->isHoldingAdmin()) {
+            $updateData['site_id'] = $request->input('site_id');
+        }
+
+        $event->update($updateData);
 
         return redirect()->route('event.index')->with('success', 'Event updated successfully.');
     }
@@ -215,6 +256,13 @@ class EventController extends Controller
         $request->validate([
             'unit_id' => 'required|exists:units,id',
             'email' => 'nullable|email',
+            'attendee_name' => 'required|string|max:255',
+            'attendance_type' => 'required|in:owner,representative',
+            'ownership_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'power_of_attorney' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'identity_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'family_card' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'company_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
         ]);
 
         $unit = Unit::find($request->unit_id);
@@ -238,10 +286,30 @@ class EventController extends Controller
 
         $status = $event->requires_approval ? 'pending' : 'approved';
 
+        // Handle file uploads
+        $uploadedFiles = [];
+        $fileFields = ['ownership_proof', 'power_of_attorney', 'identity_documents', 'family_card', 'company_documents'];
+        
+        foreach ($fileFields as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $filename = time() . '_' . $field . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $uploadedFiles[$field] = $path;
+            }
+        }
+
         $event->units()->attach($unit->id, [
             'unit_code' => $unit->code,
             'status' => $status,
             'registered_email' => $registeredEmail,
+            'attendee_name' => $request->attendee_name,
+            'attendance_type' => $request->attendance_type,
+            'ownership_proof' => $uploadedFiles['ownership_proof'] ?? null,
+            'power_of_attorney' => $uploadedFiles['power_of_attorney'] ?? null,
+            'identity_documents' => $uploadedFiles['identity_documents'] ?? null,
+            'family_card' => $uploadedFiles['family_card'] ?? null,
+            'company_documents' => $uploadedFiles['company_documents'] ?? null,
         ]);
 
         $message = $event->requires_approval

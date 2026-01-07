@@ -30,10 +30,11 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Name</th>
+                                <th>Owner Name</th>
+                                <th>Attendee Name</th>
+                                <th>Type</th>
                                 <th>NPP</th>
                                 <th>Unit</th>
-                                <th>Email</th>
                                 @if($event->requires_approval)
                                     <th>Status</th>
                                 @endif
@@ -50,9 +51,18 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $unit->user->name }}</td>
+                                    <td>{{ $unit->pivot->attendee_name ?? '-' }}</td>
+                                    <td>
+                                        @if($unit->pivot->attendance_type === 'owner')
+                                            <span class="badge bg-primary">Owner</span>
+                                        @elseif($unit->pivot->attendance_type === 'representative')
+                                            <span class="badge bg-info">Representative</span>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{{ $unit->npp ?? '-' }}</td>
                                     <td>{{ $unit->code }}</td>
-                                    <td>{{ $unit->pivot->registered_email ?? $unit->user->email }}</td>
                                     @if($event->requires_approval)
                                         <td>
                                             @if($unit->pivot->status === 'pending')
@@ -63,20 +73,95 @@
                                         </td>
                                     @endif
                                     <td>
-                                        <div class="d-flex gap-1">
+                                        <div class="d-flex gap-1 flex-wrap">
                                             @if($event->requires_approval && $unit->pivot->status === 'pending')
-                                                <form action="{{ route('event.approve-participant') }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <input type="hidden" name="event_id" value="{{ $event->id }}">
-                                                    <input type="hidden" name="unit_id" value="{{ $unit->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                                </form>
-                                                <form action="{{ route('event.reject-participant') }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <input type="hidden" name="event_id" value="{{ $event->id }}">
-                                                    <input type="hidden" name="unit_id" value="{{ $unit->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure?')">Reject</button>
-                                                </form>
+                                                <!-- View Documents Button -->
+                                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#documentsModal{{ $unit->id }}">
+                                                    View Docs
+                                                </button>
+
+                                                <!-- Documents Modal -->
+                                                <div class="modal fade" id="documentsModal{{ $unit->id }}" tabindex="-1" aria-labelledby="documentsModalLabel{{ $unit->id }}" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="documentsModalLabel{{ $unit->id }}">Documents - {{ $unit->code }}</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <table class="table">
+                                                                    <tr>
+                                                                        <th>Owner Name</th>
+                                                                        <td>{{ $unit->user->name }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>Attendee Name</th>
+                                                                        <td>{{ $unit->pivot->attendee_name ?? '-' }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>Attendance Type</th>
+                                                                        <td>{{ ucfirst($unit->pivot->attendance_type ?? '-') }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>Email</th>
+                                                                        <td>{{ $unit->pivot->registered_email ?? $unit->user->email }}</td>
+                                                                    </tr>
+                                                                </table>
+
+                                                                <h6 class="mt-4">Uploaded Documents:</h6>
+                                                                <ul class="list-group">
+                                                                    @if($unit->pivot->ownership_proof)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Ownership Proof
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->ownership_proof) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    @if($unit->pivot->power_of_attorney)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Power of Attorney
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->power_of_attorney) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    @if($unit->pivot->identity_documents)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Identity Documents
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->identity_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    @if($unit->pivot->family_card)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Family Card
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->family_card) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    @if($unit->pivot->company_documents)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Company Documents
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->company_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    @if(!$unit->pivot->ownership_proof && !$unit->pivot->power_of_attorney && !$unit->pivot->identity_documents && !$unit->pivot->family_card && !$unit->pivot->company_documents)
+                                                                        <li class="list-group-item text-muted">No documents uploaded</li>
+                                                                    @endif
+                                                                </ul>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <form action="{{ route('event.reject-participant') }}" method="POST" class="d-inline">
+                                                                    @csrf
+                                                                    <input type="hidden" name="event_id" value="{{ $event->id }}">
+                                                                    <input type="hidden" name="unit_id" value="{{ $unit->id }}">
+                                                                    <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to reject this participant?')">Reject</button>
+                                                                </form>
+                                                                <form action="{{ route('event.approve-participant') }}" method="POST" class="d-inline">
+                                                                    @csrf
+                                                                    <input type="hidden" name="event_id" value="{{ $event->id }}">
+                                                                    <input type="hidden" name="unit_id" value="{{ $unit->id }}">
+                                                                    <button type="submit" class="btn btn-success">Approve</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @endif
                                             <form action="{{ route('event.remove-participant') }}" method="POST" class="d-inline">
                                                 @csrf

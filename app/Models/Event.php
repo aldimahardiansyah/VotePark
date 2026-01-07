@@ -13,17 +13,23 @@ class Event extends Model
         'date' => 'date',
     ];
 
+    protected static $pivotColumns = [
+        'unit_code', 'status', 'registered_email', 'attendee_name', 
+        'attendance_type', 'ownership_proof', 'power_of_attorney', 
+        'identity_documents', 'family_card', 'company_documents'
+    ];
+
     public function units()
     {
         return $this->belongsToMany(Unit::class, 'event_unit')
-            ->withPivot('unit_code', 'status', 'registered_email')
+            ->withPivot(static::$pivotColumns)
             ->withTimestamps();
     }
 
     public function approvedUnits()
     {
         return $this->belongsToMany(Unit::class, 'event_unit')
-            ->withPivot('unit_code', 'status', 'registered_email')
+            ->withPivot(static::$pivotColumns)
             ->wherePivot('status', 'approved')
             ->withTimestamps();
     }
@@ -31,7 +37,7 @@ class Event extends Model
     public function pendingUnits()
     {
         return $this->belongsToMany(Unit::class, 'event_unit')
-            ->withPivot('unit_code', 'status', 'registered_email')
+            ->withPivot(static::$pivotColumns)
             ->wherePivot('status', 'pending')
             ->withTimestamps();
     }
@@ -39,7 +45,7 @@ class Event extends Model
     public function rejectedUnits()
     {
         return $this->belongsToMany(Unit::class, 'event_unit')
-            ->withPivot('unit_code', 'status', 'registered_email')
+            ->withPivot(static::$pivotColumns)
             ->wherePivot('status', 'rejected')
             ->withTimestamps();
     }

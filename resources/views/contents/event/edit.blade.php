@@ -2,6 +2,21 @@
     <form action="{{ route('event.update', $event->id) }}" method="post">
         @csrf
         @method('PUT')
+        
+        @if($sites->isNotEmpty())
+            <div class="mb-3">
+                <label for="site_id" class="form-label">Site</label>
+                <select class="form-select" id="site_id" name="site_id">
+                    <option value="">-- Select Site --</option>
+                    @foreach($sites as $site)
+                        <option value="{{ $site->id }}" {{ $event->site_id == $site->id ? 'selected' : '' }}>
+                            {{ $site->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+
         <div class="mb-3">
             <label for="name" class="form-label">Event Name</label>
             <input type="text" class="form-control" id="name" name="name" value="{{ $event->name }}" required>

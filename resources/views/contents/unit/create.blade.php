@@ -9,6 +9,21 @@
 
         <form action="{{ route('unit.store') }}" method="POST">
             @csrf
+            
+            @if($sites->isNotEmpty())
+                <div class="mb-3">
+                    <label for="site_id" class="form-label">Site</label>
+                    <select class="form-select" id="site_id" name="site_id">
+                        <option value="">-- Select Site --</option>
+                        @foreach($sites as $site)
+                            <option value="{{ $site->id }}" {{ old('site_id') == $site->id ? 'selected' : '' }}>
+                                {{ $site->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
             <div class="mb-3">
                 <label for="code" class="form-label">Code</label>
                 <input type="text" class="form-control" id="code" name="code" value="{{ old('code') }}" required>

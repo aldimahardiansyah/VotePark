@@ -15,7 +15,7 @@
             padding: 20px 0;
         }
         .register-card {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
         }
         .event-header {
@@ -33,6 +33,16 @@
             display: none;
         }
         .unit-info.show {
+            display: block;
+        }
+        .document-section {
+            display: none;
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .document-section.show {
             display: block;
         }
     </style>
@@ -69,11 +79,11 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('event.register.submit', $event->id) }}" method="POST" id="registerForm">
+                    <form action="{{ route('event.register.submit', $event->id) }}" method="POST" id="registerForm" enctype="multipart/form-data">
                         @csrf
 
                         <div class="mb-3">
-                            <label for="unit_id" class="form-label fw-bold">Select Unit</label>
+                            <label for="unit_id" class="form-label fw-bold">Select Unit <span class="text-danger">*</span></label>
                             <select class="form-select" id="unit_id" name="unit_id" required>
                                 <option value="">-- Select Unit --</option>
                                 @foreach($units as $unit)
@@ -111,10 +121,66 @@
                             </table>
                         </div>
 
-                        <div class="mb-3 mt-3" id="emailField" style="display: none;">
+                        <div class="mb-3 mt-3" id="attendeeSection" style="display: none;">
+                            <label for="attendee_name" class="form-label fw-bold">Attendee Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="attendee_name" name="attendee_name" placeholder="Enter name of person attending" required>
+                        </div>
+
+                        <div class="mb-3" id="emailField" style="display: none;">
                             <label for="email" class="form-label fw-bold">Your Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address">
                             <div class="form-text">This unit uses a default @{{ config('app.default_email_domain', 'proapps.id') }} email. Please provide your actual email address.</div>
+                        </div>
+
+                        <div class="mb-3" id="attendanceTypeSection" style="display: none;">
+                            <label class="form-label fw-bold">Attendance Type <span class="text-danger">*</span></label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="attendance_type" id="attendance_owner" value="owner">
+                                <label class="form-check-label" for="attendance_owner">
+                                    I am the unit owner
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="attendance_type" id="attendance_representative" value="representative">
+                                <label class="form-check-label" for="attendance_representative">
+                                    I am a representative of the unit owner
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Owner Documents Section -->
+                        <div class="document-section" id="ownerDocuments">
+                            <h6 class="fw-bold mb-3">Proof of Ownership</h6>
+                            <div class="mb-3">
+                                <label for="ownership_proof" class="form-label">Upload ownership document (Image/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="ownership_proof" name="ownership_proof" accept="image/*,.pdf">
+                            </div>
+                        </div>
+
+                        <!-- Representative Documents Section -->
+                        <div class="document-section" id="representativeDocuments">
+                            <h6 class="fw-bold mb-3">Required Documents for Representative</h6>
+                            <p class="text-muted small">Please upload the following documents as needed:</p>
+                            
+                            <div class="mb-3">
+                                <label for="power_of_attorney" class="form-label">Power of Attorney (Surat Kuasa bermaterai) + ID of both parties <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="power_of_attorney" name="power_of_attorney" accept="image/*,.pdf">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="identity_documents" class="form-label">KTP of grantor & grantee</label>
+                                <input type="file" class="form-control" id="identity_documents" name="identity_documents" accept="image/*,.pdf">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="family_card" class="form-label">Family Card (KK) - if sibling/child/parent</label>
+                                <input type="file" class="form-control" id="family_card" name="family_card" accept="image/*,.pdf">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="company_documents" class="form-label">Company Documents (Akta Pendirian & Akta Perubahan) - if company</label>
+                                <input type="file" class="form-control" id="company_documents" name="company_documents" accept="image/*,.pdf">
+                            </div>
                         </div>
 
                         <div class="d-grid mt-4">
@@ -161,6 +227,8 @@
                     $('#infoNpp').text(info.npp || '-');
                     $('#infoEmail').text(info.email || '-');
                     $('#unitInfo').addClass('show');
+                    $('#attendeeSection').show();
+                    $('#attendanceTypeSection').show();
                     $('#submitBtn').prop('disabled', false);
 
                     // Check if email ends with default domain
@@ -175,7 +243,36 @@
                 } else {
                     $('#unitInfo').removeClass('show');
                     $('#emailField').hide();
+                    $('#attendeeSection').hide();
+                    $('#attendanceTypeSection').hide();
+                    $('#ownerDocuments').removeClass('show');
+                    $('#representativeDocuments').removeClass('show');
                     $('#submitBtn').prop('disabled', true);
+                }
+            });
+
+            // Handle attendance type change
+            $('input[name="attendance_type"]').on('change', function() {
+                var type = $(this).val();
+                if (type === 'owner') {
+                    $('#ownerDocuments').addClass('show');
+                    $('#representativeDocuments').removeClass('show');
+                    $('#ownership_proof').prop('required', true);
+                    $('#power_of_attorney').prop('required', false);
+                } else if (type === 'representative') {
+                    $('#ownerDocuments').removeClass('show');
+                    $('#representativeDocuments').addClass('show');
+                    $('#ownership_proof').prop('required', false);
+                    $('#power_of_attorney').prop('required', true);
+                }
+            });
+
+            // File size validation (7MB max)
+            $('input[type="file"]').on('change', function() {
+                var maxSize = 7 * 1024 * 1024; // 7MB
+                if (this.files[0] && this.files[0].size > maxSize) {
+                    alert('File size must not exceed 7MB');
+                    this.value = '';
                 }
             });
         });
