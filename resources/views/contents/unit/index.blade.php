@@ -48,7 +48,7 @@
                 <h1>Units</h1>
             </div>
             <div class="col-md-6 text-end">
-                <a href="{{ route('unit.create', ['password=' . request('password')]) }}" class="btn btn-primary">Add Unit</a>
+                <a href="{{ route('unit.create') }}" class="btn btn-primary">Add Unit</a>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importUnitModal">
                     Import Unit
                 </button>
@@ -69,6 +69,11 @@
                             <div class="mb-3">
                                 <label for="file" class="form-label">Choose file (xlsx)</label>
                                 <input type="file" class="form-control" id="file" name="file" required>
+                            </div>
+                            <div class="mb-3">
+                                <a href="{{ route('unit.template.download') }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-download"></i> Download Template
+                                </a>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -113,8 +118,8 @@
                             <td>{{ $unit->user->name ?? '-' }}</td>
                             <td>{{ $unit->user->email ?? '-' }}</td>
                             <td class="d-flex">
-                                <a href="{{ route('unit.edit', [$unit->id, 'password=' . request('password')]) }}" class="btn btn-warning me-2">Edit</a>
-                                <form action="{{ route('unit.destroy', [$unit->id, 'password=' . request('password')]) }}" method="POST" style="display:inline;">
+                                <a href="{{ route('unit.edit', $unit->id) }}" class="btn btn-warning me-2">Edit</a>
+                                <form action="{{ route('unit.destroy', $unit->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">Delete</button>

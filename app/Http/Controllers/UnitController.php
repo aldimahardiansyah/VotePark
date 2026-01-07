@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class UnitController extends Controller
 {
@@ -29,12 +31,8 @@ class UnitController extends Controller
         return view('contents.unit.index', compact('units', 'towers'));
     }
 
-    public function create(Request $request)
+    public function create()
     {
-        if ($request->password !== '085779705274') {
-            return redirect()->back()->with('error', 'You are not authorized to add unit.');
-        }
-
         return view('contents.unit.create');
     }
 
@@ -67,12 +65,8 @@ class UnitController extends Controller
         return redirect()->back()->with('success', 'Unit created successfully.');
     }
 
-    public function edit($id, Request $request)
+    public function edit($id)
     {
-        if ($request->password !== '085779705274') {
-            return redirect()->back()->with('error', 'You are not authorized to edit unit.');
-        }
-
         $unit = Unit::findOrFail($id);
 
         return view('contents.unit.edit', compact('unit'));
@@ -80,10 +74,6 @@ class UnitController extends Controller
 
     public function update(Request $request, $id)
     {
-        if ($request->password !== '085779705274') {
-            return redirect()->back()->with('error', 'You are not authorized to edit unit.');
-        }
-
         $unit = Unit::findOrFail($id);
 
         $request->validate([
@@ -105,10 +95,6 @@ class UnitController extends Controller
 
     public function import(Request $request)
     {
-        if ($request->password !== '085779705274') {
-            return redirect()->back()->with('error', 'You are not authorized to import unit.');
-        }
-
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
@@ -120,16 +106,54 @@ class UnitController extends Controller
         return redirect()->route('unit.index')->with('success', 'Data imported successfully.');
     }
 
-    public function destroy($id, Request $request)
+    public function destroy($id)
     {
-        if ($request->password !== '085779705274') {
-            return redirect()->back()->with('error', 'You are not authorized to delete this unit.');
-        }
-
         $unit = Unit::findOrFail($id);
         $unit->user()->delete();
         $unit->delete();
 
         return redirect()->back()->with('success', 'Unit deleted successfully.');
+    }
+
+    public function downloadTemplate()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers
+        $sheet->setCellValue('A1', 'user_name');
+        $sheet->setCellValue('B1', 'user_email');
+        $sheet->setCellValue('C1', 'unit_code');
+        $sheet->setCellValue('D1', 'unit_npp');
+        $sheet->setCellValue('E1', 'unit_tower');
+
+        // Add example row
+        $sheet->setCellValue('A2', 'John Doe');
+        $sheet->setCellValue('B2', 'john@example.com');
+        $sheet->setCellValue('C2', 'A101');
+        $sheet->setCellValue('D2', '1.5');
+        $sheet->setCellValue('E2', 'A');
+
+        $writer = new Xlsx($spreadsheet);
+
+        $fileName = 'unit_import_template.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), $fileName);
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
+    }
+
+    public function getUnitData(Unit $unit)
+    {
+        return response()->json([
+            'id' => $unit->id,
+            'code' => $unit->code,
+            'npp' => $unit->npp,
+            'tower' => $unit->tower,
+            'user_name' => $unit->user->name ?? '',
+            'user_email' => $unit->user->email ?? '',
+        ]);
     }
 }

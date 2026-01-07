@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'site_id',
     ];
 
     /**
@@ -49,5 +51,20 @@ class User extends Authenticatable
     public function units()
     {
         return $this->hasMany(Unit::class);
+    }
+
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
+    }
+
+    public function isHoldingAdmin(): bool
+    {
+        return $this->role === 'holding_admin';
+    }
+
+    public function isSiteAdmin(): bool
+    {
+        return $this->role === 'site_admin';
     }
 }
