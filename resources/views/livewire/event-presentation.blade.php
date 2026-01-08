@@ -27,7 +27,7 @@
 
     <div class="text-center">
         <h3 class="mb-4">Scan to Register</h3>
-        <div class="qr-container">
+        <div class="qr-container" wire:ignore>
             <div id="qrcode"></div>
         </div>
         <div class="register-link mt-4">

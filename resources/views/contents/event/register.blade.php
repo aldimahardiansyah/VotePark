@@ -91,9 +91,9 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="unit_id" class="form-label fw-bold">Select Unit <span class="text-danger">*</span></label>
+                            <label for="unit_id" class="form-label fw-bold">Pilih Unit <span class="text-danger">*</span></label>
                             <select class="form-select" id="unit_id" name="unit_id" required>
-                                <option value="">-- Select Unit --</option>
+                                <option value="">-- Pilih Unit --</option>
                                 @foreach ($units as $unit)
                                     <option value="{{ $unit->id }}" data-info="{{ json_encode([
                                         'name' => $unit->user->name ?? '',
@@ -108,14 +108,14 @@
                         </div>
 
                         <div class="unit-info" id="unitInfo">
-                            <h6 class="fw-bold mb-3">Unit Information</h6>
+                            <h6 class="fw-bold mb-3">Informasi Unit</h6>
                             <table class="table table-borderless mb-0">
                                 <tr>
-                                    <td class="text-muted" width="120">Unit Code</td>
+                                    <td class="text-muted" width="120">Kode Unit</td>
                                     <td><strong id="infoCode">-</strong></td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Owner Name</td>
+                                    <td class="text-muted">Nama Pemilik</td>
                                     <td><strong id="infoName">-</strong></td>
                                 </tr>
                                 <tr>
@@ -130,83 +130,84 @@
                         </div>
 
                         <div class="mb-3 mt-3" id="attendeeSection" style="display: none;">
-                            <label for="attendee_name" class="form-label fw-bold">Attendee Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="attendee_name" name="attendee_name" placeholder="Enter name of person attending" required>
+                            <label for="attendee_name" class="form-label fw-bold">Nama Peserta <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="attendee_name" name="attendee_name" placeholder="Masukkan nama peserta" required>
                         </div>
 
                         <div class="mb-3" id="emailField" style="display: none;">
-                            <label for="email" class="form-label fw-bold">Your Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address">
-                            <div class="form-text">This unit uses a default @{{ config('app.default_email_domain', 'proapps.id') }} email. Please provide your actual email address.</div>
+                            <label for="email" class="form-label fw-bold">Email Anda <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan alamat email Anda">
+                            <div class="form-text">Unit ini menggunakan email default {{ '@' . config('app.default_email_domain', 'proapps.id') }}. Harap berikan alamat email Anda yang sebenarnya.</div>
                         </div>
 
                         <div class="mb-3" id="attendanceTypeSection" style="display: none;">
-                            <label class="form-label fw-bold">Attendance Type <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">Tipe Kehadiran <span class="text-danger">*</span></label>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="attendance_type" id="attendance_owner" value="owner">
                                 <label class="form-check-label" for="attendance_owner">
-                                    I am the unit owner
+                                    Saya adalah pemilik unit
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="attendance_type" id="attendance_representative" value="representative">
                                 <label class="form-check-label" for="attendance_representative">
-                                    I am a representative of the unit owner
+                                    Saya adalah perwakilan pemilik unit
                                 </label>
                             </div>
                         </div>
 
                         <!-- Owner Documents Section -->
                         <div class="document-section" id="ownerDocuments">
-                            <h6 class="fw-bold mb-3">Proof of Ownership</h6>
+                            <h6 class="fw-bold mb-3">Bukti Kepemilikan</h6>
                             <div class="mb-3">
-                                <label for="ownership_proof" class="form-label">Upload ownership document (Image/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <label for="ownership_proof" class="form-label">Unggah dokumen kepemilikan (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
                                 <input type="file" class="form-control" id="ownership_proof" name="ownership_proof" accept="image/*,.pdf">
                             </div>
                         </div>
 
                         <!-- Representative Documents Section -->
                         <div class="document-section" id="representativeDocuments">
-                            <h6 class="fw-bold mb-3">Required Documents for Representative</h6>
-                            <p class="text-muted small">Please upload the following documents as needed:</p>
+                            <h6 class="fw-bold mb-3">Dokumen yang Diperlukan untuk Perwakilan</h6>
+                            <p class="text-muted small">Silakan unggah dokumen berikut sesuai kebutuhan:</p>
 
                             <div class="mb-3">
-                                <label for="power_of_attorney" class="form-label">Power of Attorney (Surat Kuasa bermaterai) + ID of both parties <span class="text-danger">*</span></label>
+                                <label for="power_of_attorney" class="form-label">Surat Kuasa bermaterai <span class="text-danger">*</span></label>
                                 <input type="file" class="form-control" id="power_of_attorney" name="power_of_attorney" accept="image/*,.pdf">
                             </div>
 
                             <div class="mb-3">
-                                <label for="identity_documents" class="form-label">KTP of grantor & grantee</label>
-                                <input type="file" class="form-control" id="identity_documents" name="identity_documents" accept="image/*,.pdf">
-                            </div>
+                                <label for="identity_documents" class="form-label">KTP pemberi & penerima kuasa (dapat upload lebih dari satu file)</label>
+                                <input type="file" class="form-control" id="identity_documents" name="identity_documents[]" accept="image/*,.pdf" multiple>
+                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
 
-                            <div class="mb-3">
-                                <label for="family_card" class="form-label">Family Card (KK) - if sibling/child/parent</label>
-                                <input type="file" class="form-control" id="family_card" name="family_card" accept="image/*,.pdf">
-                            </div>
+                                <div class="mb-3">
+                                    <label for="family_card" class="form-label">Kartu Keluarga (KK) - jika saudara/anak/orang tua</label>
+                                    <input type="file" class="form-control" id="family_card" name="family_card" accept="image/*,.pdf">
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="company_documents" class="form-label">Company Documents (Akta Pendirian & Akta Perubahan) - if company</label>
-                                <input type="file" class="form-control" id="company_documents" name="company_documents" accept="image/*,.pdf">
+                                <div class="mb-3">
+                                    <label for="company_documents" class="form-label">Dokumen Perusahaan (Akta Pendirian & Akta Perubahan) - jika perusahaan</label>
+                                    <input type="file" class="form-control" id="company_documents" name="company_documents" accept="image/*,.pdf">
+                                </div>
                             </div>
                         </div>
 
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
-                                Register for Event
+                                Daftar untuk Acara
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
 
-            <div class="text-center mt-3">
-                <small class="text-muted">
-                    @if ($event->requires_approval)
-                        Note: Your registration will require approval from the organizer.
-                    @endif
-                </small>
-            </div>
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                @if ($event->requires_approval)
+                    Catatan: Pendaftaran Anda akan memerlukan persetujuan dari penyelenggara.
+                @endif
+            </small>
         </div>
     </div>
 

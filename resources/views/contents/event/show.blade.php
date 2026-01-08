@@ -30,8 +30,8 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Owner Name</th>
-                                <th>Attendee Name</th>
+                                <th>Owner</th>
+                                <th>Attendee</th>
                                 <th>Type</th>
                                 <th>NPP</th>
                                 <th>Unit</th>
@@ -115,31 +115,38 @@
                                                                 <ul class="list-group">
                                                                     @if ($unit->pivot->ownership_proof)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Ownership Proof
+                                                                            Bukti Kepemilikan
                                                                             <a href="{{ asset('storage/' . $unit->pivot->ownership_proof) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif
                                                                     @if ($unit->pivot->power_of_attorney)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Power of Attorney
+                                                                            Surat Kuasa
                                                                             <a href="{{ asset('storage/' . $unit->pivot->power_of_attorney) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif
                                                                     @if ($unit->pivot->identity_documents)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Identity Documents
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->identity_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                            KTP / Identitas
+                                                                            @php
+                                                                                $identityDocuments = json_decode($unit->pivot->identity_documents);
+                                                                            @endphp
+                                                                            <div>
+                                                                                @foreach ($identityDocuments as $doc)
+                                                                                    <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
+                                                                                @endforeach
+                                                                            </div>
                                                                         </li>
                                                                     @endif
                                                                     @if ($unit->pivot->family_card)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Family Card
+                                                                            Kartu Keluarga
                                                                             <a href="{{ asset('storage/' . $unit->pivot->family_card) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif
                                                                     @if ($unit->pivot->company_documents)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Company Documents
+                                                                            Dokumen Perusahaan
                                                                             <a href="{{ asset('storage/' . $unit->pivot->company_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif

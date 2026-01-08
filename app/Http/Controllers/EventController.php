@@ -260,7 +260,7 @@ class EventController extends Controller
             'attendance_type' => 'required|in:owner,representative',
             'ownership_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'power_of_attorney' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
-            'identity_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'identity_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'family_card' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'company_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
         ]);
@@ -288,15 +288,26 @@ class EventController extends Controller
 
         // Handle file uploads
         $uploadedFiles = [];
-        $fileFields = ['ownership_proof', 'power_of_attorney', 'identity_documents', 'family_card', 'company_documents'];
+        $singleFileFields = ['ownership_proof', 'power_of_attorney', 'family_card', 'company_documents'];
 
-        foreach ($fileFields as $field) {
+        foreach ($singleFileFields as $field) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
                 $filename = time() . '_' . $field . '_' . $file->getClientOriginalName();
                 $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
                 $uploadedFiles[$field] = $path;
             }
+        }
+
+        // Handle multiple identity documents
+        if ($request->hasFile('identity_documents')) {
+            $identityPaths = [];
+            foreach ($request->file('identity_documents') as $index => $file) {
+                $filename = time() . '_identity_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $identityPaths[] = $path;
+            }
+            $uploadedFiles['identity_documents'] = json_encode($identityPaths);
         }
 
         $event->units()->attach($unit->id, [
