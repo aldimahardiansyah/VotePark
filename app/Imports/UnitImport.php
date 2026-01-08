@@ -29,8 +29,9 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
             $user_name = $row[0];
             $user_email = $row[1];
             $unit_code = $row[2];
-            $unit_npp = $row[3];
-            $unit_tower = $row[4];
+            $unit_wide = $row[3];
+            $unit_npp = $row[4];
+            $unit_tower = $row[5];
 
             // skip if unit already exist
             $unit = Unit::where('code', $unit_code)->exists();
@@ -63,7 +64,7 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
                 // update unit
                 $unit->update([
                     'npp' => $unit_npp,
-                    'wide' => 1,
+                    'wide' => $unit_wide,
                     'tower' => $unit_tower,
                     'site_id' => auth()->user()?->site_id ?? null,
                 ]);

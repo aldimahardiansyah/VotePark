@@ -166,15 +166,17 @@ class UnitController extends Controller
         $sheet->setCellValue('A1', 'user_name');
         $sheet->setCellValue('B1', 'user_email');
         $sheet->setCellValue('C1', 'unit_code');
-        $sheet->setCellValue('D1', 'unit_npp');
-        $sheet->setCellValue('E1', 'unit_tower');
+        $sheet->setCellValue('D1', 'unit_wide');
+        $sheet->setCellValue('E1', 'unit_npp');
+        $sheet->setCellValue('F1', 'unit_tower');
 
         // Add example row
         $sheet->setCellValue('A2', 'John Doe');
         $sheet->setCellValue('B2', 'john@example.com');
         $sheet->setCellValue('C2', 'A101');
-        $sheet->setCellValue('D2', '1.5');
-        $sheet->setCellValue('E2', 'A');
+        $sheet->setCellValue('D2', '40.5');
+        $sheet->setCellValue('E2', '1.5');
+        $sheet->setCellValue('F2', 'A');
 
         $writer = new Xlsx($spreadsheet);
 
