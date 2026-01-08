@@ -65,6 +65,7 @@ class UnitImport implements ToCollection, WithStartRow, WithChunkReading, WithBa
                     'npp' => $unit_npp,
                     'wide' => 1,
                     'tower' => $unit_tower,
+                    'site_id' => auth()->user()?->site_id ?? null,
                 ]);
             } else {
                 Log::info('Unit not found: ' . $unit_code);
