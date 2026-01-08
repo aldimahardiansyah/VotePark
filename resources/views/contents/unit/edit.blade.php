@@ -7,9 +7,24 @@
 
         <x-alert.success-and-error />
 
-        <form action="{{ route('unit.update', [$unit->id, 'password=' . request('password')]) }}" method="POST">
+        <form action="{{ route('unit.update', $unit->id) }}" method="POST">
             @csrf
             @method('PUT')
+            
+            @if($sites->isNotEmpty())
+                <div class="mb-3">
+                    <label for="site_id" class="form-label">Site</label>
+                    <select class="form-select" id="site_id" name="site_id">
+                        <option value="">-- Select Site --</option>
+                        @foreach($sites as $site)
+                            <option value="{{ $site->id }}" {{ $unit->site_id == $site->id ? 'selected' : '' }}>
+                                {{ $site->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
             <div class="mb-3">
                 <label for="code" class="form-label">Code</label>
                 <input type="text" class="form-control" id="code" name="code" value="{{ $unit->code }}" required readonly>

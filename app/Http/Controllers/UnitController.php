@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Imports\UnitImport;
+use App\Models\Site;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,11 +16,22 @@ class UnitController extends Controller
 {
     public function index()
     {
-        $units = Unit::with('user')->get();
+        $user = auth()->user();
+
+        // Filter by site for site_admin
+        $query = Unit::with('user', 'site');
+        if ($user->isSiteAdmin() && $user->site_id) {
+            $query->where('site_id', $user->site_id);
+        }
+
+        $units = $query->get();
 
         // Get the count and total NPP for each tower
-        $towers = Unit::select('tower', DB::raw('count(*) as count'), DB::raw('SUM(npp) as total_npp'))
-            ->groupBy('tower')
+        $towerQuery = Unit::select('tower', DB::raw('count(*) as count'), DB::raw('SUM(npp) as total_npp'));
+        if ($user->isSiteAdmin() && $user->site_id) {
+            $towerQuery->where('site_id', $user->site_id);
+        }
+        $towers = $towerQuery->groupBy('tower')
             ->get()
             ->mapWithKeys(function ($item) {
                 return [$item->tower => [
@@ -33,33 +45,48 @@ class UnitController extends Controller
 
     public function create()
     {
-        return view('contents.unit.create');
+        $user = auth()->user();
+        $sites = $user->isHoldingAdmin() ? Site::all() : collect();
+        $userSiteId = $user->site_id;
+
+        return view('contents.unit.create', compact('sites', 'userSiteId'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $user = auth()->user();
+
+        $rules = [
             'code' => 'required|string|max:10|unique:units,code',
             'npp' => 'required|numeric',
             'wide' => 'required|numeric',
             'user_name' => 'required|string|max:255',
             'user_email' => 'required|email|max:255',
-        ]);
+        ];
+
+        if ($user->isHoldingAdmin()) {
+            $rules['site_id'] = 'nullable|exists:sites,id';
+        }
+
+        $request->validate($rules);
 
         // User first or create
-        $user = User::firstOrCreate(
+        $owner = User::firstOrCreate(
             ['email' => $request->input('user_email')],
             [
                 'name' => $request->input('user_name'),
-                'password' => bcrypt('password'), // Set a default password or handle it as per your requirement
+                'password' => bcrypt('password'),
             ]
         );
+
+        $siteId = $user->isHoldingAdmin() ? $request->input('site_id') : $user->site_id;
 
         Unit::create([
             'code' => $request->input('code'),
             'npp' => $request->input('npp'),
             'wide' => $request->input('wide'),
-            'user_id' => $user->id,
+            'user_id' => $owner->id,
+            'site_id' => $siteId,
         ]);
 
         return redirect()->back()->with('success', 'Unit created successfully.');
@@ -68,23 +95,38 @@ class UnitController extends Controller
     public function edit($id)
     {
         $unit = Unit::findOrFail($id);
+        $user = auth()->user();
+        $sites = $user->isHoldingAdmin() ? Site::all() : collect();
+        $userSiteId = $user->site_id;
 
-        return view('contents.unit.edit', compact('unit'));
+        return view('contents.unit.edit', compact('unit', 'sites', 'userSiteId'));
     }
 
     public function update(Request $request, $id)
     {
         $unit = Unit::findOrFail($id);
+        $user = auth()->user();
 
-        $request->validate([
+        $rules = [
             'code' => 'required|string|max:10',
             'npp' => 'required|numeric',
             'wide' => 'required|numeric',
             'user_name' => 'required|string|max:255',
             'user_email' => 'required|email|max:255|unique:users,email,' . $unit->user->id,
-        ]);
+        ];
 
-        $unit->update($request->only('code', 'npp', 'wide'));
+        if ($user->isHoldingAdmin()) {
+            $rules['site_id'] = 'nullable|exists:sites,id';
+        }
+
+        $request->validate($rules);
+
+        $updateData = $request->only('code', 'npp', 'wide');
+        if ($user->isHoldingAdmin()) {
+            $updateData['site_id'] = $request->input('site_id');
+        }
+
+        $unit->update($updateData);
         $unit->user->update([
             'name' => $request->input('user_name'),
             'email' => $request->input('user_email'),
