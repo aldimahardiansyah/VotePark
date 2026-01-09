@@ -43,7 +43,7 @@
         </div>
         <div class="col-8">
             <h3 class="mb-4 text-center">Participants</h3>
-            <div class="participants-container" id="participantsContainer" style="max-height: 500px; overflow-y: auto;">
+            <div class="participants-container" id="participantsContainer" style="max-height: 300px; overflow-y: auto;">
                 @if (count($approvedParticipants) > 0)
                     <div class="table-responsive">
                         <table class="table table-striped table-hover table-sm">
