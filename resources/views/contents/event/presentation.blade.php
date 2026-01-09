@@ -68,7 +68,7 @@
 
 <body>
     <button class="btn btn-light fullscreen-btn" onclick="toggleFullscreen()">
-        <span id="fullscreen-icon">⛶ Fullscreen</span>
+        <span id="fullscreen-icon">Fullscreen</span>
     </button>
 
     <div class="container-fluid py-5">
@@ -94,11 +94,11 @@
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
-                document.getElementById('fullscreen-icon').textContent = '✕ Exit Fullscreen';
+                document.getElementById('fullscreen-icon').textContent = 'Exit Fullscreen';
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
-                    document.getElementById('fullscreen-icon').textContent = '⛶ Fullscreen';
+                    document.getElementById('fullscreen-icon').textContent = 'Fullscreen';
                 }
             }
         }
