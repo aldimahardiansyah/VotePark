@@ -26,7 +26,7 @@
         <div class="col-md-4">
             <div class="stats-card">
                 <div class="stats-number">{{ $uniqueOwners }}</div>
-                <div>Unique Owners</div>
+                <div>Person</div>
             </div>
         </div>
     </div>
@@ -60,7 +60,7 @@
                             <tbody>
                                 @foreach ($approvedParticipants as $index => $unit)
                                     <tr class="participant-row">
-                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $approvedParticipants->count() - $index }}</td>
                                         <td>{{ $unit->pivot->unit_code ?? $unit->code }}</td>
                                         <td>{{ Str::limit($unit->user->name, 50, '...') ?? '-' }}</td>
                                         <td>{{ Str::limit($unit->pivot->attendee_name, 50, '...') ?? '-' }}</td>
