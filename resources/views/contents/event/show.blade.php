@@ -134,7 +134,7 @@
                                                                     @endif
                                                                     @if ($unit->pivot->sjb_shm_document)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            SJB/SHM
+                                                                            AJB/SHM
                                                                             <a href="{{ asset('storage/' . $unit->pivot->sjb_shm_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif

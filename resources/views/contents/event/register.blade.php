@@ -172,7 +172,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="sjb_shm_document" class="form-label">File SJB/SHM Sarusun (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <label for="sjb_shm_document" class="form-label">File AJB/SHM Sarusun (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
                                 <input type="file" class="form-control" id="sjb_shm_document" name="sjb_shm_document" accept="image/*,.pdf">
                             </div>
 
