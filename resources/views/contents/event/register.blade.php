@@ -284,6 +284,18 @@
                     this.value = '';
                 }
             });
+
+            // Clear all files if attendance_representative is changed
+            $('#attendance_representative').on('change', function() {
+                if (this.checked) {
+                    $('#ownership_proof').val('');
+                } else {
+                    $('#power_of_attorney').val('');
+                    $('#identity_documents').val('');
+                    $('#family_card').val('');
+                    $('#company_documents').val('');
+                }
+            });
         });
     </script>
 </body>
