@@ -25,41 +25,52 @@
         </div>
     </div>
 
-    <div>
-        <h3 class="mb-4 text-center">Participants</h3>
-        <div class="participants-container" id="participantsContainer" style="max-height: 500px; overflow-y: auto;">
-            @if (count($approvedParticipants) > 0)
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark sticky-top">
-                            <tr>
-                                <th>No</th>
-                                <th>Unit Code</th>
-                                <th>Owner Name</th>
-                                <th>Attendee Name</th>
-                                <th>NPP</th>
-                                <th>Registered At</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($approvedParticipants as $index => $unit)
-                                <tr class="participant-row">
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $unit->pivot->unit_code ?? $unit->code }}</td>
-                                    <td>{{ $unit->user->name ?? '-' }}</td>
-                                    <td>{{ $unit->pivot->attendee_name ?? '-' }}</td>
-                                    <td>{{ number_format($unit->npp, 2) }}%</td>
-                                    <td>{{ \Carbon\Carbon::parse($unit->pivot->created_at)->format('d/m/Y H:i') }}</td>
+    <div class="row">
+        <div class="col-4">
+            <h3 class="mb-4">Scan to Register</h3>
+            <div class="qr-container" wire:ignore>
+                <div id="qrcode"></div>
+            </div>
+            <div class="register-link mt-4">
+                <p>Or visit: <a href="{{ route('event.register', $event->id) }}" class="text-info" target="_blank">{{ route('event.register', $event->id) }}</a></p>
+            </div>
+        </div>
+        <div class="col-8">
+            <h3 class="mb-4 text-center">Participants</h3>
+            <div class="participants-container" id="participantsContainer" style="max-height: 500px; overflow-y: auto;">
+                @if (count($approvedParticipants) > 0)
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Unit Code</th>
+                                    <th>Owner Name</th>
+                                    <th>Attendee Name</th>
+                                    <th>NPP</th>
+                                    <th>Registered At</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="text-center text-muted py-5">
-                    <p>No approved participants yet</p>
-                </div>
-            @endif
+                            </thead>
+                            <tbody>
+                                @foreach ($approvedParticipants as $index => $unit)
+                                    <tr class="participant-row">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $unit->pivot->unit_code ?? $unit->code }}</td>
+                                        <td>{{ Str::limit($unit->user->name, 50, '...') ?? '-' }}</td>
+                                        <td>{{ Str::limit($unit->pivot->attendee_name, 50, '...') ?? '-' }}</td>
+                                        <td>{{ number_format($unit->npp, 2) }}%</td>
+                                        <td>{{ \Carbon\Carbon::parse($unit->pivot->created_at)->tz('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center text-muted py-5">
+                        <p>No approved participants yet</p>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
