@@ -64,9 +64,9 @@
                                     <td>{{ $unit->pivot->attendee_name ?? '-' }}</td>
                                     <td>
                                         @if ($unit->pivot->attendance_type === 'owner')
-                                            <span class="badge bg-primary">Owner</span>
+                                            <span class="badge bg-primary">Pemilik</span>
                                         @elseif($unit->pivot->attendance_type === 'representative')
-                                            <span class="badge bg-info">Representative</span>
+                                            <span class="badge bg-info">Perwakilan</span>
                                         @else
                                             -
                                         @endif
@@ -115,6 +115,10 @@
                                                                     <tr>
                                                                         <th>Email</th>
                                                                         <td>{{ $unit->pivot->registered_email ?? $unit->user->email }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>Phone Number</th>
+                                                                        <td>{{ $unit->pivot->registered_phone_number ?? '-' }}</td>
                                                                     </tr>
                                                                 </table>
 

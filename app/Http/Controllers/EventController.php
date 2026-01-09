@@ -256,6 +256,7 @@ class EventController extends Controller
         $request->validate([
             'unit_id' => 'required|exists:units,id',
             'email' => 'nullable|email',
+            'phone_number' => 'nullable|string|max:20',
             'attendee_name' => 'required|string|max:255',
             'attendance_type' => 'required|in:owner,representative',
             'ownership_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
@@ -273,13 +274,12 @@ class EventController extends Controller
         $userEmail = $unit->user->email ?? '';
         $defaultDomain = '@' . config('app.default_email_domain', 'proapps.id');
 
-        // Check if email ends with default domain and custom email is required
+        // Check if email ends with default domain and custom email is provided
         $registeredEmail = $userEmail;
-        if (str_ends_with($userEmail, $defaultDomain)) {
-            $request->validate([
-                'email' => 'required|email',
-            ]);
+        if (str_ends_with($userEmail, $defaultDomain) && $request->filled('email')) {
             $registeredEmail = $request->email;
+        } elseif (!str_ends_with($userEmail, $defaultDomain)) {
+            $registeredEmail = $userEmail;
         }
 
         // Check if already registered
@@ -329,6 +329,7 @@ class EventController extends Controller
             'unit_code' => $unit->code,
             'status' => $status,
             'registered_email' => $registeredEmail,
+            'phone_number' => $request->phone_number,
             'attendee_name' => $request->attendee_name,
             'attendance_type' => $request->attendance_type,
             'ownership_proof' => $uploadedFiles['ownership_proof'] ?? null,

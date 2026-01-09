@@ -17,6 +17,7 @@ class Event extends Model
         'unit_code',
         'status',
         'registered_email',
+        'phone_number',
         'attendee_name',
         'attendance_type',
         'ownership_proof',

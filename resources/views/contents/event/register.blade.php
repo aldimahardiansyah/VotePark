@@ -135,9 +135,13 @@
                         </div>
 
                         <div class="mb-3" id="emailField" style="display: none;">
-                            <label for="email" class="form-label fw-bold">Email Anda <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan alamat email Anda">
-                            <!-- <div class="form-text">Unit ini menggunakan email default {{ '@' . config('app.default_email_domain', 'proapps.id') }}. Harap berikan alamat email Anda yang sebenarnya.</div> -->
+                            <label for="email" class="form-label fw-bold">Email Anda</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan alamat email Anda (opsional)">
+                        </div>
+
+                        <div class="mb-3" id="phoneField" style="display: none;">
+                            <label for="phone_number" class="form-label fw-bold">No. Telepon</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="Masukkan nomor telepon (opsional)">
                         </div>
 
                         <div class="mb-3" id="attendanceTypeSection" style="display: none;">
@@ -162,24 +166,24 @@
                             <p class="text-muted small">Silakan unggah dokumen berikut sesuai kebutuhan:</p>
 
                             <div class="mb-3">
-                                <label for="ppjb_document" class="form-label">File PPJB (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <label for="civil_documents" class="form-label">Dokumen Kependudukan (KTP & KK) - dapat upload lebih dari satu file</label>
+                                <input type="file" class="form-control" id="civil_documents" name="civil_documents[]" accept="image/*,.pdf" multiple>
+                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="ppjb_document" class="form-label">File PPJB (Gambar/PDF, max 7MB)</label>
                                 <input type="file" class="form-control" id="ppjb_document" name="ppjb_document" accept="image/*,.pdf">
                             </div>
 
                             <div class="mb-3">
-                                <label for="bukti_lunas_document" class="form-label">File Bukti Lunas (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <label for="bukti_lunas_document" class="form-label">File Bukti Lunas (Gambar/PDF, max 7MB)</label>
                                 <input type="file" class="form-control" id="bukti_lunas_document" name="bukti_lunas_document" accept="image/*,.pdf">
                             </div>
 
                             <div class="mb-3">
-                                <label for="sjb_shm_document" class="form-label">File AJB/SHM Sarusun (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <label for="sjb_shm_document" class="form-label">File AJB/SHM Sarusun (Gambar/PDF, max 7MB)</label>
                                 <input type="file" class="form-control" id="sjb_shm_document" name="sjb_shm_document" accept="image/*,.pdf">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="civil_documents" class="form-label">Dokumen Kependudukan (KTP & KK) - dapat upload lebih dari satu file <span class="text-danger">*</span></label>
-                                <input type="file" class="form-control" id="civil_documents" name="civil_documents[]" accept="image/*,.pdf" multiple>
-                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
                             </div>
                         </div>
 
@@ -189,24 +193,24 @@
                             <p class="text-muted small">Silakan unggah dokumen berikut sesuai kebutuhan:</p>
 
                             <div class="mb-3">
-                                <label for="power_of_attorney" class="form-label">Surat Kuasa bermaterai <span class="text-danger">*</span></label>
+                                <label for="identity_documents" class="form-label">KTP pemberi & penerima kuasa (dapat upload lebih dari satu file)</label>
+                                <input type="file" class="form-control" id="identity_documents" name="identity_documents[]" accept="image/*,.pdf" multiple>
+                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="power_of_attorney" class="form-label">Surat Kuasa bermaterai</label>
                                 <input type="file" class="form-control" id="power_of_attorney" name="power_of_attorney" accept="image/*,.pdf">
                             </div>
 
                             <div class="mb-3">
-                                <label for="identity_documents" class="form-label">KTP pemberi & penerima kuasa (dapat upload lebih dari satu file)</label>
-                                <input type="file" class="form-control" id="identity_documents" name="identity_documents[]" accept="image/*,.pdf" multiple>
-                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
+                                <label for="family_card" class="form-label">Kartu Keluarga (KK) - jika saudara/anak/orang tua</label>
+                                <input type="file" class="form-control" id="family_card" name="family_card" accept="image/*,.pdf">
+                            </div>
 
-                                <div class="mb-3">
-                                    <label for="family_card" class="form-label">Kartu Keluarga (KK) - jika saudara/anak/orang tua</label>
-                                    <input type="file" class="form-control" id="family_card" name="family_card" accept="image/*,.pdf">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="company_documents" class="form-label">Dokumen Perusahaan (Akta Pendirian & Akta Perubahan) - jika perusahaan</label>
-                                    <input type="file" class="form-control" id="company_documents" name="company_documents" accept="image/*,.pdf">
-                                </div>
+                            <div class="mb-3">
+                                <label for="company_documents" class="form-label">Dokumen Perusahaan (Akta Pendirian & Akta Perubahan) - jika perusahaan</label>
+                                <input type="file" class="form-control" id="company_documents" name="company_documents" accept="image/*,.pdf">
                             </div>
                         </div>
 
@@ -255,21 +259,14 @@
                     $('#infoEmail').text(info.email || '-');
                     $('#unitInfo').addClass('show');
                     $('#attendeeSection').show();
+                    $('#emailField').show();
+                    $('#phoneField').show();
                     $('#attendanceTypeSection').show();
                     $('#submitBtn').prop('disabled', false);
-
-                    // Check if email ends with default domain
-                    if (info.email && info.email.endsWith(defaultDomain)) {
-                        $('#emailField').show();
-                        $('#email').prop('required', true);
-                    } else {
-                        $('#emailField').hide();
-                        $('#email').prop('required', false);
-                        $('#email').val('');
-                    }
                 } else {
                     $('#unitInfo').removeClass('show');
                     $('#emailField').hide();
+                    $('#phoneField').hide();
                     $('#attendeeSection').hide();
                     $('#attendanceTypeSection').hide();
                     $('#ownerDocuments').removeClass('show');
@@ -284,19 +281,9 @@
                 if (type === 'owner') {
                     $('#ownerDocuments').addClass('show');
                     $('#representativeDocuments').removeClass('show');
-                    $('#ppjb_document').prop('required', true);
-                    $('#bukti_lunas_document').prop('required', true);
-                    $('#sjb_shm_document').prop('required', true);
-                    $('#civil_documents').prop('required', true);
-                    $('#power_of_attorney').prop('required', false);
                 } else if (type === 'representative') {
                     $('#ownerDocuments').removeClass('show');
                     $('#representativeDocuments').addClass('show');
-                    $('#ppjb_document').prop('required', false);
-                    $('#bukti_lunas_document').prop('required', false);
-                    $('#sjb_shm_document').prop('required', false);
-                    $('#civil_documents').prop('required', false);
-                    $('#power_of_attorney').prop('required', true);
                 }
             });
 
