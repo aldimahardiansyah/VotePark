@@ -1,12 +1,19 @@
 <x-layout.main>
     <x-alert.success-and-error />
 
+    <!-- Toggle Buttons -->
+    {{-- <div class="mb-3 text-end">
+        <button type="button" class="btn btn-sm btn-outline-primary" id="toggleEventCards">
+            <i class="bi bi-eye-slash"></i> Hide Event Cards
+        </button>
+    </div> --}}
+
     <div class="row">
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-4" id="eventCardsColumn">
             <x-event.vote :event="$event" />
         </div>
 
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-md-8" id="participantsColumn">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center pt-3">
                     <h5 class="text-center">Participants</h5>
@@ -163,6 +170,12 @@
                                                                             <a href="{{ asset('storage/' . $unit->pivot->family_card) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif
+                                                                    @if ($unit->pivot->power_of_attorney)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            Surat Kuasa
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->power_of_attorney) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
                                                                     @if ($unit->pivot->company_documents)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                                                             Dokumen Perusahaan
@@ -209,4 +222,28 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                let eventCardsVisible = true;
+
+                $('#toggleEventCards').on('click', function() {
+                    eventCardsVisible = !eventCardsVisible;
+
+                    if (eventCardsVisible) {
+                        // Show event cards
+                        $('#eventCardsColumn').removeClass('d-none');
+                        $('#participantsColumn').removeClass('col-md-12').addClass('col-md-8');
+                        $(this).html('<i class="bi bi-eye-slash"></i> Hide Event Cards');
+                    } else {
+                        // Hide event cards
+                        $('#eventCardsColumn').addClass('d-none');
+                        $('#participantsColumn').removeClass('col-md-8').addClass('col-md-12');
+                        $(this).html('<i class="bi bi-eye"></i> Show Event Cards');
+                    }
+                });
+            });
+        </script>
+    @endpush
 </x-layout.main>
