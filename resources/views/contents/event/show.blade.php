@@ -23,7 +23,7 @@
                                 View Rejected ({{ $event->rejectedUnits->count() }})
                             </a>
                         @endif
-                        <x-event.add-participant-modal :event="$event" />
+                        {{-- <x-event.add-participant-modal :event="$event" /> --}}
                     </div>
                 </div>
                 <div class="card-body">
