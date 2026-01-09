@@ -137,7 +137,7 @@
                         <div class="mb-3" id="emailField" style="display: none;">
                             <label for="email" class="form-label fw-bold">Email Anda <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" placeholder="Masukkan alamat email Anda">
-                            <div class="form-text">Unit ini menggunakan email default {{ '@' . config('app.default_email_domain', 'proapps.id') }}. Harap berikan alamat email Anda yang sebenarnya.</div>
+                            <!-- <div class="form-text">Unit ini menggunakan email default {{ '@' . config('app.default_email_domain', 'proapps.id') }}. Harap berikan alamat email Anda yang sebenarnya.</div> -->
                         </div>
 
                         <div class="mb-3" id="attendanceTypeSection" style="display: none;">
