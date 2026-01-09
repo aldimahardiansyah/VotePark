@@ -57,7 +57,7 @@
                                         ->get()
                                     : $event->approvedUnits;
                             @endphp
-                            @foreach ($displayUnits as $unit)
+                            @foreach ($displayUnits->reverse() as $unit)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $unit->user->name }}</td>

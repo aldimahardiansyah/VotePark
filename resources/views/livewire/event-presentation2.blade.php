@@ -7,7 +7,8 @@
 
     <div class="event-info">
         <h1 class="event-title">{{ $event->name }}</h1>
-        <p class="event-date">{{ \Carbon\Carbon::parse($event->date)->format('l, d F Y') }}</p>
+        <p class="event-date mb-0">{{ \Carbon\Carbon::parse($event->date)->tz('Asia/Jakarta')->format('l, d F Y') }}</p>
+        <p class="event-date d-inline" wire:ignore><span id="currentTime">{{ now()->tz('Asia/Jakarta')->format('H:i:s') }}</span> WIB</p>
     </div>
 
     <div class="row justify-content-center mb-5">
@@ -92,6 +93,15 @@
                 }
             });
         });
+
+        const eventTime = document.getElementById('currentTime');
+        setInterval(() => {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            eventTime.textContent = `${hours}:${minutes}:${seconds}`;
+        }, 1000);
     </script>
 
     <style>
