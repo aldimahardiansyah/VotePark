@@ -113,16 +113,35 @@
 
                                                                 <h6 class="mt-4">Uploaded Documents:</h6>
                                                                 <ul class="list-group">
-                                                                    @if ($unit->pivot->ownership_proof)
+                                                                    @if ($unit->pivot->ppjb_document)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Bukti Kepemilikan
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->ownership_proof) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                            PPJB
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->ppjb_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif
-                                                                    @if ($unit->pivot->power_of_attorney)
+                                                                    @if ($unit->pivot->bukti_lunas_document)
                                                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Surat Kuasa
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->power_of_attorney) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                            Bukti Lunas
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->bukti_lunas_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    @if ($unit->pivot->sjb_shm_document)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            SJB/SHM
+                                                                            <a href="{{ asset('storage/' . $unit->pivot->sjb_shm_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    @if ($unit->pivot->civil_documents)
+                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            KTP / Identitas
+                                                                            @php
+                                                                                $civilDocuments = json_decode($unit->pivot->civil_documents);
+                                                                            @endphp
+                                                                            <div>
+                                                                                @foreach ($civilDocuments as $doc)
+                                                                                    <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
+                                                                                @endforeach
+                                                                            </div>
                                                                         </li>
                                                                     @endif
                                                                     @if ($unit->pivot->identity_documents)
@@ -150,7 +169,7 @@
                                                                             <a href="{{ asset('storage/' . $unit->pivot->company_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                         </li>
                                                                     @endif
-                                                                    @if (!$unit->pivot->ownership_proof && !$unit->pivot->power_of_attorney && !$unit->pivot->identity_documents && !$unit->pivot->family_card && !$unit->pivot->company_documents)
+                                                                    @if (!$unit->pivot->ownership_proof && !$unit->pivot->power_of_attorney && !$unit->pivot->identity_documents && !$unit->pivot->family_card && !$unit->pivot->company_documents && !$unit->pivot->ppjb_document && !$unit->pivot->bukti_lunas_document && !$unit->pivot->sjb_shm_document)
                                                                         <li class="list-group-item text-muted">No documents uploaded</li>
                                                                     @endif
                                                                 </ul>

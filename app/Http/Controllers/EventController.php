@@ -259,6 +259,10 @@ class EventController extends Controller
             'attendee_name' => 'required|string|max:255',
             'attendance_type' => 'required|in:owner,representative',
             'ownership_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'ppjb_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'bukti_lunas_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'sjb_shm_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'civil_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'power_of_attorney' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'identity_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'family_card' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
@@ -288,7 +292,7 @@ class EventController extends Controller
 
         // Handle file uploads
         $uploadedFiles = [];
-        $singleFileFields = ['ownership_proof', 'power_of_attorney', 'family_card', 'company_documents'];
+        $singleFileFields = ['ownership_proof', 'ppjb_document', 'bukti_lunas_document', 'sjb_shm_document', 'power_of_attorney', 'family_card', 'company_documents'];
 
         foreach ($singleFileFields as $field) {
             if ($request->hasFile($field)) {
@@ -297,6 +301,17 @@ class EventController extends Controller
                 $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
                 $uploadedFiles[$field] = $path;
             }
+        }
+
+        // Handle multiple civil documents (KTP & KK for owner)
+        if ($request->hasFile('civil_documents')) {
+            $civilPaths = [];
+            foreach ($request->file('civil_documents') as $index => $file) {
+                $filename = time() . '_civil_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $civilPaths[] = $path;
+            }
+            $uploadedFiles['civil_documents'] = json_encode($civilPaths);
         }
 
         // Handle multiple identity documents
@@ -317,6 +332,10 @@ class EventController extends Controller
             'attendee_name' => $request->attendee_name,
             'attendance_type' => $request->attendance_type,
             'ownership_proof' => $uploadedFiles['ownership_proof'] ?? null,
+            'ppjb_document' => $uploadedFiles['ppjb_document'] ?? null,
+            'bukti_lunas_document' => $uploadedFiles['bukti_lunas_document'] ?? null,
+            'sjb_shm_document' => $uploadedFiles['sjb_shm_document'] ?? null,
+            'civil_documents' => $uploadedFiles['civil_documents'] ?? null,
             'power_of_attorney' => $uploadedFiles['power_of_attorney'] ?? null,
             'identity_documents' => $uploadedFiles['identity_documents'] ?? null,
             'family_card' => $uploadedFiles['family_card'] ?? null,

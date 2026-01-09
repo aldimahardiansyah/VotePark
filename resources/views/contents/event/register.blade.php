@@ -158,10 +158,28 @@
 
                         <!-- Owner Documents Section -->
                         <div class="document-section" id="ownerDocuments">
-                            <h6 class="fw-bold mb-3">Bukti Kepemilikan</h6>
+                            <h6 class="fw-bold mb-3">Dokumen yang Diperlukan untuk Pemilik Unit</h6>
+                            <p class="text-muted small">Silakan unggah dokumen berikut sesuai kebutuhan:</p>
+
                             <div class="mb-3">
-                                <label for="ownership_proof" class="form-label">Unggah dokumen kepemilikan (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
-                                <input type="file" class="form-control" id="ownership_proof" name="ownership_proof" accept="image/*,.pdf">
+                                <label for="ppjb_document" class="form-label">File PPJB (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="ppjb_document" name="ppjb_document" accept="image/*,.pdf">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="bukti_lunas_document" class="form-label">File Bukti Lunas (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="bukti_lunas_document" name="bukti_lunas_document" accept="image/*,.pdf">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="sjb_shm_document" class="form-label">File SJB/SHM Sarusun (Gambar/PDF, max 7MB) <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="sjb_shm_document" name="sjb_shm_document" accept="image/*,.pdf">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="civil_documents" class="form-label">Dokumen Kependudukan (KTP & KK) - dapat upload lebih dari satu file <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="civil_documents" name="civil_documents[]" accept="image/*,.pdf" multiple>
+                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
                             </div>
                         </div>
 
@@ -266,12 +284,18 @@
                 if (type === 'owner') {
                     $('#ownerDocuments').addClass('show');
                     $('#representativeDocuments').removeClass('show');
-                    $('#ownership_proof').prop('required', true);
+                    $('#ppjb_document').prop('required', true);
+                    $('#bukti_lunas_document').prop('required', true);
+                    $('#sjb_shm_document').prop('required', true);
+                    $('#civil_documents').prop('required', true);
                     $('#power_of_attorney').prop('required', false);
                 } else if (type === 'representative') {
                     $('#ownerDocuments').removeClass('show');
                     $('#representativeDocuments').addClass('show');
-                    $('#ownership_proof').prop('required', false);
+                    $('#ppjb_document').prop('required', false);
+                    $('#bukti_lunas_document').prop('required', false);
+                    $('#sjb_shm_document').prop('required', false);
+                    $('#civil_documents').prop('required', false);
                     $('#power_of_attorney').prop('required', true);
                 }
             });
@@ -285,15 +309,21 @@
                 }
             });
 
-            // Clear all files if attendance_representative is changed
-            $('#attendance_representative').on('change', function() {
-                if (this.checked) {
-                    $('#ownership_proof').val('');
-                } else {
+            // Clear all files if attendance type is changed
+            $('input[name="attendance_type"]').on('change', function() {
+                var type = $(this).val();
+                if (type === 'owner') {
+                    // Clear representative files
                     $('#power_of_attorney').val('');
                     $('#identity_documents').val('');
                     $('#family_card').val('');
                     $('#company_documents').val('');
+                } else if (type === 'representative') {
+                    // Clear owner files
+                    $('#ppjb_document').val('');
+                    $('#bukti_lunas_document').val('');
+                    $('#sjb_shm_document').val('');
+                    $('#civil_documents').val('');
                 }
             });
         });
