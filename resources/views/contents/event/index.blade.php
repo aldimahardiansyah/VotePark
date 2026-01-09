@@ -16,7 +16,7 @@
                 <td>{{ $event->date->format('d M Y') }}</td>
                 <td>{{ $event->approvedUnits->count() }}</td>
                 <td>
-                    @if($event->requires_approval)
+                    @if ($event->requires_approval)
                         <span class="badge bg-warning">Yes</span>
                     @else
                         <span class="badge bg-secondary">No</span>
@@ -28,9 +28,9 @@
                     <a href="{{ route('event.presentation', $event->id) }}" class="btn btn-sm btn-success" target="_blank">Presentation</a>
 
                     {{-- import participant --}}
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importParticipantModal{{ $event->id }}">
+                    {{-- <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importParticipantModal{{ $event->id }}">
                         Import Participant
-                    </button>
+                    </button> --}}
 
                     <!-- Import Participant Modal -->
                     <div class="modal fade" id="importParticipantModal{{ $event->id }}" tabindex="-1" aria-labelledby="importParticipantModalLabel{{ $event->id }}" aria-hidden="true">

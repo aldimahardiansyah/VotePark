@@ -1,4 +1,10 @@
 <div wire:poll.5s="refreshStats">
+    <style>
+        .table {
+            font-size: .9rem;
+        }
+    </style>
+
     <div class="event-info">
         <h1 class="event-title">{{ $event->name }}</h1>
         <p class="event-date">{{ \Carbon\Carbon::parse($event->date)->format('l, d F Y') }}</p>
@@ -40,7 +46,7 @@
             <div class="participants-container" id="participantsContainer" style="max-height: 500px; overflow-y: auto;">
                 @if (count($approvedParticipants) > 0)
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover table-sm">
                             <thead class="table-dark sticky-top">
                                 <tr>
                                     <th>No</th>
