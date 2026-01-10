@@ -113,7 +113,7 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $unit->code }}</td>
                             <td>Tower{{ $unit->tower ?? '-' }}</td>
-                            <td>{{ $unit->npp ?? '-' }}</td>
+                            <td>{{ number_format($unit->npp ?? 0, 2) }}</td>
                             <td>{{ $unit->wide ?? '-' }}</td>
                             <td>{{ $unit->user->name ?? '-' }}</td>
                             <td>{{ $unit->user->email ?? '-' }}</td>
