@@ -71,7 +71,7 @@
                                             -
                                         @endif
                                     </td>
-                                    <td>{{ $unit->npp ?? '-' }}</td>
+                                    <td>{{ number_format($unit->npp ?? '0', 2, '.', ',') }}</td>
                                     <td>{{ $unit->code }}</td>
                                     @if ($event->requires_approval)
                                         <td>
