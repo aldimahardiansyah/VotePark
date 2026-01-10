@@ -255,7 +255,7 @@
                 if (info) {
                     $('#infoCode').text(info.code || '-');
                     $('#infoName').text(info.name || '-');
-                    $('#infoNpp').text(info.npp || '-');
+                    $('#infoNpp').text(Number(info.npp || 0).toFixed(2));
                     $('#infoEmail').text(info.email || '-');
                     $('#unitInfo').addClass('show');
                     $('#attendeeSection').show();

@@ -8,7 +8,7 @@
         <a href="{{ route('event.create') }}" class="btn btn-primary">Create Event</a>
     </div>
 
-    <x-table :columns="['id', 'name', 'date', 'attendance', 'requires_approval', 'action']">
+    <x-table :columns="['id', 'name', 'date', 'participants', 'requires_approval', 'action']">
         @foreach ($events as $event)
             <tr>
                 <td>{{ $loop->iteration }}</td>

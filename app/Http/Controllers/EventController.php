@@ -247,7 +247,7 @@ class EventController extends Controller
 
     public function registerForm(Event $event)
     {
-        $units = Unit::with('user')->get();
+        $units = Unit::with('user')->orderBy('code')->get();
         return view('contents.event.register', compact('event', 'units'));
     }
 

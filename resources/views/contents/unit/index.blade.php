@@ -99,9 +99,9 @@
                     <tr>
                         <th>No</th>
                         <th>Code</th>
-                        <th>NPP</th>
                         <th>Tower</th>
-                        {{-- <th>Luas</th> --}}
+                        <th>NPP</th>
+                        <th>Luas</th>
                         <th>Tenant</th>
                         <th>Email</th>
                         <th>Actions</th>
@@ -112,14 +112,14 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $unit->code }}</td>
-                            <td>{{ $unit->npp ?? '-' }}</td>
                             <td>Tower{{ $unit->tower ?? '-' }}</td>
-                            {{-- <td>{{ $unit->wide ?? '-' }}</td> --}}
+                            <td>{{ $unit->npp ?? '-' }}</td>
+                            <td>{{ $unit->wide ?? '-' }}</td>
                             <td>{{ $unit->user->name ?? '-' }}</td>
                             <td>{{ $unit->user->email ?? '-' }}</td>
                             <td class="d-flex">
                                 <a href="{{ route('unit.edit', $unit->id) }}" class="btn btn-warning me-2">Edit</a>
-                                <form action="{{ route('unit.destroy', $unit->id) }}" method="POST" style="display:inline;">
+                                <form action="{{ route('unit.destroy', $unit->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this unit?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">Delete</button>

@@ -24,7 +24,8 @@ class UnitController extends Controller
             $query->where('site_id', $user->site_id);
         }
 
-        $units = $query->get();
+        $units = $query->orderBy('code')
+        ->get();
 
         // Get the count and total NPP for each tower
         $towerQuery = Unit::select('tower', DB::raw('count(*) as count'), DB::raw('SUM(npp) as total_npp'));
