@@ -25,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('event', EventController::class);
     Route::post('event/import-participant', [EventController::class, 'importParticipant'])->name('event.import-participant');
     Route::get('event/{event}/participant-template/download', [EventController::class, 'downloadParticipantTemplate'])->name('event.participant-template.download');
+    Route::get('event/{event}/export-participants', [EventController::class, 'exportParticipants'])->name('event.export-participants');
     Route::post('event/add-participant', [EventController::class, 'addParticipant'])->name('event.add-participant');
     Route::post('event/approve-participant', [EventController::class, 'approveParticipant'])->name('event.approve-participant');
     Route::post('event/reject-participant', [EventController::class, 'rejectParticipant'])->name('event.reject-participant');
