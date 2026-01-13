@@ -160,6 +160,31 @@
                             </div>
                         </div>
 
+                        <!-- Photo Capture Section - Only shown if event requires photo -->
+                        @if ($event->requires_photo)
+                            <div class="mb-3" id="photoSection" style="display: none;">
+                                <label class="form-label fw-bold">Foto Peserta <span class="text-danger">*</span></label>
+                                <p class="text-muted small">Ambil foto menggunakan kamera depan Anda</p>
+                                <div class="text-center">
+                                    <video id="video" width="100%" height="auto" autoplay style="max-width: 400px; display: none;"></video>
+                                    <canvas id="canvas" style="display: none;"></canvas>
+                                    <img id="photo" src="" alt="Captured Photo" style="max-width: 400px; width: 100%; display: none;" class="img-thumbnail mb-2">
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-primary" id="startCamera" style="display: none;">
+                                            <i class="bi bi-camera"></i> Buka Kamera
+                                        </button>
+                                        <button type="button" class="btn btn-success" id="snap" style="display: none;">
+                                            <i class="bi bi-camera-fill"></i> Ambil Foto
+                                        </button>
+                                        <button type="button" class="btn btn-warning" id="retake" style="display: none;">
+                                            <i class="bi bi-arrow-repeat"></i> Ambil Ulang
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="participant_photo" id="participant_photo_input">
+                            </div>
+                        @endif
+
                         <!-- Owner Documents Section -->
                         <div class="document-section" id="ownerDocuments">
                             <h6 class="fw-bold mb-3">Dokumen yang Diperlukan untuk Pemilik Unit</h6>
@@ -262,6 +287,10 @@
                     $('#emailField').show();
                     $('#phoneField').show();
                     $('#attendanceTypeSection').show();
+                    @if ($event->requires_photo)
+                        $('#photoSection').show();
+                        $('#startCamera').show();
+                    @endif
                     $('#submitBtn').prop('disabled', false);
                 } else {
                     $('#unitInfo').removeClass('show');
@@ -271,6 +300,9 @@
                     $('#attendanceTypeSection').hide();
                     $('#ownerDocuments').removeClass('show');
                     $('#representativeDocuments').removeClass('show');
+                    @if ($event->requires_photo)
+                        $('#photoSection').hide();
+                    @endif
                     $('#submitBtn').prop('disabled', true);
                 }
             });
@@ -313,6 +345,75 @@
                     $('#civil_documents').val('');
                 }
             });
+
+            @if ($event->requires_photo)
+                // Camera functionality
+                var video = document.getElementById('video');
+                var canvas = document.getElementById('canvas');
+                var snap = document.getElementById('snap');
+                var retake = document.getElementById('retake');
+                var photo = document.getElementById('photo');
+                var startCamera = document.getElementById('startCamera');
+                var photoInput = document.getElementById('participant_photo_input');
+                var stream = null;
+
+                $('#startCamera').on('click', function() {
+                    // Request front camera (user-facing camera)
+                    navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'user' },
+                        audio: false 
+                    })
+                    .then(function(s) {
+                        stream = s;
+                        video.srcObject = stream;
+                        video.play();
+                        $('#video').show();
+                        $('#snap').show();
+                        $('#startCamera').hide();
+                    })
+                    .catch(function(err) {
+                        console.error("Error accessing camera: ", err);
+                        alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
+                    });
+                });
+
+                $('#snap').on('click', function() {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    var context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    var dataURL = canvas.toDataURL('image/jpeg');
+                    photo.src = dataURL;
+                    photoInput.value = dataURL;
+                    
+                    $('#photo').show();
+                    $('#retake').show();
+                    $('#video').hide();
+                    $('#snap').hide();
+                    
+                    // Stop camera stream
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                });
+
+                $('#retake').on('click', function() {
+                    $('#photo').hide();
+                    $('#retake').hide();
+                    $('#startCamera').show();
+                    photoInput.value = '';
+                });
+
+                // Form validation - ensure photo is taken if required
+                $('#registerForm').on('submit', function(e) {
+                    if (!photoInput.value) {
+                        e.preventDefault();
+                        alert('Mohon ambil foto Anda terlebih dahulu.');
+                        return false;
+                    }
+                });
+            @endif
         });
     </script>
 </body>

@@ -18,6 +18,9 @@
                 <div class="card-header d-flex justify-content-between align-items-center pt-3">
                     <h5 class="text-center">Participants</h5>
                     <div>
+                        <a href="{{ route('event.export-participants', $event->id) }}" class="btn btn-sm btn-success me-2">
+                            <i class="bi bi-download"></i> Export Participants
+                        </a>
                         @if ($event->rejectedUnits->count() > 0)
                             <a href="{{ route('event.rejected-participants', $event->id) }}" class="btn btn-sm btn-outline-danger me-2">
                                 View Rejected ({{ $event->rejectedUnits->count() }})
@@ -84,114 +87,121 @@
                                     @endif
                                     <td>
                                         <div class="d-flex gap-1 flex-wrap">
-                                            @if ($event->requires_approval && $unit->pivot->status === 'pending')
-                                                <!-- View Documents Button -->
-                                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#documentsModal{{ $unit->id }}">
-                                                    View Docs
-                                                </button>
+                                            <!-- View Documents Button - Show for both pending and approved participants -->
+                                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#documentsModal{{ $unit->id }}">
+                                                View Docs
+                                            </button>
 
-                                                <!-- Documents Modal -->
-                                                <div class="modal fade" id="documentsModal{{ $unit->id }}" tabindex="-1" aria-labelledby="documentsModalLabel{{ $unit->id }}" aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="documentsModalLabel{{ $unit->id }}">Documents - {{ $unit->code }}</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <table class="table">
-                                                                    <tr>
-                                                                        <th>Owner Name</th>
-                                                                        <td>{{ $unit->user->name }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th>Attendee Name</th>
-                                                                        <td>{{ $unit->pivot->attendee_name ?? '-' }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th>Attendance Type</th>
-                                                                        <td>{{ ucfirst($unit->pivot->attendance_type ?? '-') }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th>Email</th>
-                                                                        <td>{{ $unit->pivot->registered_email ?? $unit->user->email }}</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th>Phone Number</th>
-                                                                        <td>{{ $unit->pivot->registered_phone_number ?? '-' }}</td>
-                                                                    </tr>
-                                                                </table>
+                                            <!-- Documents Modal -->
+                                            <div class="modal fade" id="documentsModal{{ $unit->id }}" tabindex="-1" aria-labelledby="documentsModalLabel{{ $unit->id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="documentsModalLabel{{ $unit->id }}">Documents - {{ $unit->code }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <table class="table">
+                                                                <tr>
+                                                                    <th>Owner Name</th>
+                                                                    <td>{{ $unit->user->name }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Attendee Name</th>
+                                                                    <td>{{ $unit->pivot->attendee_name ?? '-' }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Attendance Type</th>
+                                                                    <td>{{ ucfirst($unit->pivot->attendance_type ?? '-') }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Email</th>
+                                                                    <td>{{ $unit->pivot->registered_email ?? $unit->user->email }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Phone Number</th>
+                                                                    <td>{{ $unit->pivot->phone_number ?? '-' }}</td>
+                                                                </tr>
+                                                            </table>
 
-                                                                <h6 class="mt-4">Uploaded Documents:</h6>
-                                                                <ul class="list-group">
-                                                                    @if ($unit->pivot->ppjb_document)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            PPJB
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->ppjb_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($unit->pivot->bukti_lunas_document)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Bukti Lunas
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->bukti_lunas_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($unit->pivot->sjb_shm_document)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            AJB/SHM
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->sjb_shm_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($unit->pivot->civil_documents)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            KTP / Identitas
-                                                                            @php
-                                                                                $civilDocuments = json_decode($unit->pivot->civil_documents);
-                                                                            @endphp
-                                                                            <div>
-                                                                                @foreach ($civilDocuments as $doc)
-                                                                                    <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
-                                                                                @endforeach
-                                                                            </div>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($unit->pivot->identity_documents)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            KTP / Identitas
-                                                                            @php
-                                                                                $identityDocuments = json_decode($unit->pivot->identity_documents);
-                                                                            @endphp
-                                                                            <div>
-                                                                                @foreach ($identityDocuments as $doc)
-                                                                                    <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
-                                                                                @endforeach
-                                                                            </div>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($unit->pivot->family_card)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Kartu Keluarga
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->family_card) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($unit->pivot->power_of_attorney)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Surat Kuasa
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->power_of_attorney) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($unit->pivot->company_documents)
-                                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                            Dokumen Perusahaan
-                                                                            <a href="{{ asset('storage/' . $unit->pivot->company_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if (!$unit->pivot->ownership_proof && !$unit->pivot->power_of_attorney && !$unit->pivot->identity_documents && !$unit->pivot->family_card && !$unit->pivot->company_documents && !$unit->pivot->ppjb_document && !$unit->pivot->bukti_lunas_document && !$unit->pivot->sjb_shm_document)
-                                                                        <li class="list-group-item text-muted">No documents uploaded</li>
-                                                                    @endif
-                                                                </ul>
-                                                            </div>
-                                                            <div class="modal-footer">
+                                                            @if ($unit->pivot->participant_photo)
+                                                                <h6 class="mt-4">Participant Photo:</h6>
+                                                                <div class="text-center mb-3">
+                                                                    <img src="{{ asset('storage/' . $unit->pivot->participant_photo) }}" alt="Participant Photo" class="img-thumbnail" style="max-width: 300px;">
+                                                                </div>
+                                                            @endif
+
+                                                            <h6 class="mt-4">Uploaded Documents:</h6>
+                                                            <ul class="list-group">
+                                                                @if ($unit->pivot->ppjb_document)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        PPJB
+                                                                        <a href="{{ asset('storage/' . $unit->pivot->ppjb_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                    </li>
+                                                                @endif
+                                                                @if ($unit->pivot->bukti_lunas_document)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Bukti Lunas
+                                                                        <a href="{{ asset('storage/' . $unit->pivot->bukti_lunas_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                    </li>
+                                                                @endif
+                                                                @if ($unit->pivot->sjb_shm_document)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        AJB/SHM
+                                                                        <a href="{{ asset('storage/' . $unit->pivot->sjb_shm_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                    </li>
+                                                                @endif
+                                                                @if ($unit->pivot->civil_documents)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        KTP / Identitas
+                                                                        @php
+                                                                            $civilDocuments = json_decode($unit->pivot->civil_documents);
+                                                                        @endphp
+                                                                        <div>
+                                                                            @foreach ($civilDocuments as $doc)
+                                                                                <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </li>
+                                                                @endif
+                                                                @if ($unit->pivot->identity_documents)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        KTP / Identitas
+                                                                        @php
+                                                                            $identityDocuments = json_decode($unit->pivot->identity_documents);
+                                                                        @endphp
+                                                                        <div>
+                                                                            @foreach ($identityDocuments as $doc)
+                                                                                <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </li>
+                                                                @endif
+                                                                @if ($unit->pivot->family_card)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Kartu Keluarga
+                                                                        <a href="{{ asset('storage/' . $unit->pivot->family_card) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                    </li>
+                                                                @endif
+                                                                @if ($unit->pivot->power_of_attorney)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Surat Kuasa
+                                                                        <a href="{{ asset('storage/' . $unit->pivot->power_of_attorney) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                    </li>
+                                                                @endif
+                                                                @if ($unit->pivot->company_documents)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        Dokumen Perusahaan
+                                                                        <a href="{{ asset('storage/' . $unit->pivot->company_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                    </li>
+                                                                @endif
+                                                                @if (!$unit->pivot->ownership_proof && !$unit->pivot->power_of_attorney && !$unit->pivot->identity_documents && !$unit->pivot->family_card && !$unit->pivot->company_documents && !$unit->pivot->ppjb_document && !$unit->pivot->bukti_lunas_document && !$unit->pivot->sjb_shm_document && !$unit->pivot->civil_documents)
+                                                                    <li class="list-group-item text-muted">No documents uploaded</li>
+                                                                @endif
+                                                            </ul>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            @if ($event->requires_approval && $unit->pivot->status === 'pending')
                                                                 <form action="{{ route('event.reject-participant') }}" method="POST" class="d-inline">
                                                                     @csrf
                                                                     <input type="hidden" name="event_id" value="{{ $event->id }}">
@@ -204,11 +214,13 @@
                                                                     <input type="hidden" name="unit_id" value="{{ $unit->id }}">
                                                                     <button type="submit" class="btn btn-success">Approve</button>
                                                                 </form>
-                                                            </div>
+                                                            @else
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endif
+                                            </div>
                                             <form action="{{ route('event.remove-participant') }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('delete')

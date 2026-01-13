@@ -52,6 +52,7 @@ class EventController extends Controller
             'name' => 'required|string|max:255',
             'date' => 'required|date',
             'requires_approval' => 'nullable|boolean',
+            'requires_photo' => 'nullable|boolean',
         ];
 
         if ($user->isHoldingAdmin()) {
@@ -66,6 +67,7 @@ class EventController extends Controller
             'name' => $request->name,
             'date' => $request->date,
             'requires_approval' => $request->has('requires_approval'),
+            'requires_photo' => $request->has('requires_photo'),
             'site_id' => $siteId,
         ]);
 
@@ -104,6 +106,7 @@ class EventController extends Controller
             'name' => 'required|string|max:255',
             'date' => 'required|date',
             'requires_approval' => 'nullable|boolean',
+            'requires_photo' => 'nullable|boolean',
         ];
 
         if ($user->isHoldingAdmin()) {
@@ -116,6 +119,7 @@ class EventController extends Controller
             'name' => $request->name,
             'date' => $request->date,
             'requires_approval' => $request->has('requires_approval'),
+            'requires_photo' => $request->has('requires_photo'),
         ];
 
         if ($user->isHoldingAdmin()) {
@@ -239,6 +243,50 @@ class EventController extends Controller
         return view('contents.event.rejected-participants', compact('event'));
     }
 
+    public function exportParticipants(Event $event)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers
+        $headers = ['No', 'Owner Name', 'Attendee Name', 'Attendance Type', 'NPP', 'Unit Code', 'Email', 'Phone Number', 'Status'];
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Get participants
+        $participants = $event->requires_approval
+            ? $event->units()->wherePivotIn('status', ['approved', 'pending'])->get()
+            : $event->approvedUnits;
+
+        // Add data
+        $row = 2;
+        foreach ($participants as $index => $unit) {
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, $unit->user->name ?? '-');
+            $sheet->setCellValue('C' . $row, $unit->pivot->attendee_name ?? '-');
+            $sheet->setCellValue('D' . $row, ucfirst($unit->pivot->attendance_type ?? '-'));
+            $sheet->setCellValue('E' . $row, number_format($unit->npp ?? 0, 2, '.', ','));
+            $sheet->setCellValue('F' . $row, $unit->code);
+            $sheet->setCellValue('G' . $row, $unit->pivot->registered_email ?? $unit->user->email);
+            $sheet->setCellValue('H' . $row, $unit->pivot->phone_number ?? '-');
+            $sheet->setCellValue('I' . $row, ucfirst($unit->pivot->status ?? 'approved'));
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        $fileName = 'participants_' . $event->name . '_' . now()->format('Y-m-d') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), $fileName);
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
+    }
+
     public function presentation(Event $event)
     {
         $units = Unit::with('user')->get();
@@ -253,7 +301,7 @@ class EventController extends Controller
 
     public function registerParticipant(Request $request, Event $event)
     {
-        $request->validate([
+        $validationRules = [
             'unit_id' => 'required|exists:units,id',
             'email' => 'nullable|email',
             'phone_number' => 'nullable|string|max:20',
@@ -268,7 +316,14 @@ class EventController extends Controller
             'identity_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'family_card' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'company_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
-        ]);
+        ];
+
+        // Add photo validation if event requires photo
+        if ($event->requires_photo) {
+            $validationRules['participant_photo'] = 'required|string';
+        }
+
+        $request->validate($validationRules);
 
         $unit = Unit::find($request->unit_id);
         $userEmail = $unit->user->email ?? '';
@@ -325,6 +380,19 @@ class EventController extends Controller
             $uploadedFiles['identity_documents'] = json_encode($identityPaths);
         }
 
+        // Handle photo capture (base64 data)
+        if ($event->requires_photo && $request->filled('participant_photo')) {
+            $photoData = $request->participant_photo;
+            // Remove the data URL prefix (data:image/jpeg;base64,)
+            $photoData = preg_replace('/^data:image\/\w+;base64,/', '', $photoData);
+            $photoData = base64_decode($photoData);
+            
+            $filename = time() . '_participant_photo_' . $unit->id . '.jpg';
+            $path = 'event_documents/' . $event->id . '/' . $filename;
+            \Storage::disk('public')->put($path, $photoData);
+            $uploadedFiles['participant_photo'] = $path;
+        }
+
         $event->units()->attach($unit->id, [
             'unit_code' => $unit->code,
             'status' => $status,
@@ -341,6 +409,7 @@ class EventController extends Controller
             'identity_documents' => $uploadedFiles['identity_documents'] ?? null,
             'family_card' => $uploadedFiles['family_card'] ?? null,
             'company_documents' => $uploadedFiles['company_documents'] ?? null,
+            'participant_photo' => $uploadedFiles['participant_photo'] ?? null,
         ]);
 
         $message = $event->requires_approval

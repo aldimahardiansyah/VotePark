@@ -10,6 +10,7 @@ class Event extends Model
 
     protected $casts = [
         'requires_approval' => 'boolean',
+        'requires_photo' => 'boolean',
         'date' => 'date',
     ];
 
@@ -28,7 +29,8 @@ class Event extends Model
         'power_of_attorney',
         'identity_documents',
         'family_card',
-        'company_documents'
+        'company_documents',
+        'participant_photo'
     ];
 
     public function units()

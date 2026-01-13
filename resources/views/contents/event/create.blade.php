@@ -32,6 +32,14 @@
                 </label>
             </div>
         </div>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="requires_photo" name="requires_photo" value="1">
+                <label class="form-check-label" for="requires_photo">
+                    Require photo during registration
+                </label>
+            </div>
+        </div>
 
         {{-- submit --}}
         <div class="mb-3">
