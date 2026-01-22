@@ -25,7 +25,7 @@
         .timer-btn {
             position: fixed;
             top: 20px;
-            right: 140px;
+            right: 160px;
             z-index: 1000;
         }
 
@@ -143,7 +143,7 @@
             background: rgba(255, 255, 255, 0.1);
             padding: 20px 30px;
             border-radius: 15px;
-            display: flex;
+            display: none;
             gap: 20px;
             align-items: center;
         }
@@ -206,8 +206,7 @@
         <div class="timer-display" id="timerDisplay">05:00</div>
 
         <div class="timer-controls">
-            <button class="btn btn-success" onclick="startTimer()">▶ Mulai</button>
-            <button class="btn btn-warning" onclick="pauseTimer()">⏸ Pause</button>
+            <button id="startPauseBtn" class="btn btn-success" onclick="toggleTimer()">▶ Mulai</button>
             <button class="btn btn-danger" onclick="resetTimer()">↺ Reset</button>
             <button class="btn btn-info" onclick="toggleTimerSettings()">⚙️ Pengaturan</button>
         </div>
@@ -377,6 +376,7 @@
             }
 
             isRunning = true;
+            updateStartPauseButton();
             timerInterval = setInterval(() => {
                 remainingSeconds--;
 
@@ -407,12 +407,36 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
+            updateStartPauseButton();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function updateStartPauseButton() {
+            const btn = document.getElementById('startPauseBtn');
+            if (!btn) return;
+            if (isRunning) {
+                btn.textContent = '⏸ Pause';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-warning');
+            } else {
+                btn.textContent = '▶ Mulai';
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-success');
+            }
         }
 
         function resetTimer() {
             pauseTimer();
             playedWarnings.clear();
             updateTimerFromSettings();
+            updateStartPauseButton();
         }
 
         function toggleTimerSettings() {
