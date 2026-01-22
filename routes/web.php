@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnonymousVotingController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\SiteController;
@@ -35,6 +36,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('vote/{vote}', [VoteController::class, 'show'])->name('vote.show');
     Route::delete('vote/{vote}', [VoteController::class, 'destroy'])->name('vote.destroy');
     Route::resource('question', QuestionController::class);
+
+    // Anonymous Voting routes
+    Route::resource('anonymous-voting', AnonymousVotingController::class);
+    Route::post('anonymous-voting/{votingSession}/add-candidate', [AnonymousVotingController::class, 'addCandidate'])->name('anonymous-voting.add-candidate');
+    Route::put('anonymous-voting/candidate/{candidate}', [AnonymousVotingController::class, 'updateCandidate'])->name('anonymous-voting.update-candidate');
+    Route::delete('anonymous-voting/candidate/{candidate}', [AnonymousVotingController::class, 'deleteCandidate'])->name('anonymous-voting.delete-candidate');
+    Route::post('anonymous-voting/{votingSession}/record-ballot', [AnonymousVotingController::class, 'recordBallot'])->name('anonymous-voting.record-ballot');
+    Route::delete('anonymous-voting/ballot/{ballot}', [AnonymousVotingController::class, 'deleteBallot'])->name('anonymous-voting.delete-ballot');
 });
 
 // Holding Admin routes - require holding_admin role
@@ -47,3 +56,6 @@ Route::get('event/{event}/presentation', [EventController::class, 'presentation'
 Route::get('event/{event}/register', [EventController::class, 'registerForm'])->name('event.register');
 Route::post('event/{event}/register', [EventController::class, 'registerParticipant'])->name('event.register.submit');
 Route::get('api/units/{unit}', [UnitController::class, 'getUnitData'])->name('api.unit.data');
+
+// Anonymous voting presentation (public)
+Route::get('anonymous-voting/{votingSession}/presentation', [AnonymousVotingController::class, 'presentation'])->name('anonymous-voting.presentation');

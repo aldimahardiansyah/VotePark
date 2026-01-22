@@ -17,6 +17,9 @@
                         <li class="nav-item">
                             <a class="nav-link {{ $currentRoute == 'event.index' ? 'active' : '' }}" href="{{ route('event.index') }}">Events</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ str_starts_with($currentRoute, 'anonymous-voting.') ? 'active' : '' }}" href="{{ route('anonymous-voting.index') }}">Anonymous Voting</a>
+                        </li>
                         @if (auth()->user()->isHoldingAdmin())
                             <li class="nav-item">
                                 <a class="nav-link {{ str_starts_with($currentRoute, 'site.') ? 'active' : '' }}" href="{{ route('site.index') }}">Sites</a>
