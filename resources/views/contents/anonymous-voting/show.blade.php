@@ -145,7 +145,12 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="npp" class="form-label">NPP Value</label>
-                                    <input type="number" step="0.0001" class="form-control @error('npp') is-invalid @enderror" id="npp" name="npp" value="{{ old('npp') }}" required>
+                                    <select class="form-select @error('npp') is-invalid @enderror" id="npp" name="npp" required>
+                                        <option value="">-- Select NPP --</option>
+                                        <option value="0.11">0.11</option>
+                                        <option value="0.12">0.12</option>
+                                        <option value="0.21">0.21</option>
+                                    </select>
                                     @error('npp')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

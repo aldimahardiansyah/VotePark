@@ -92,6 +92,11 @@
                                                 View Docs
                                             </button>
 
+                                            <!-- Edit Participant Button -->
+                                            <a href="{{ route('event.edit-participant', [$event->id, $unit->id]) }}" class="btn btn-sm btn-warning">
+                                                Edit
+                                            </a>
+
                                             <!-- Documents Modal -->
                                             <div class="modal fade" id="documentsModal{{ $unit->id }}" tabindex="-1" aria-labelledby="documentsModalLabel{{ $unit->id }}" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
@@ -135,8 +140,18 @@
                                                             <ul class="list-group">
                                                                 @if ($unit->pivot->ppjb_document)
                                                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                        PPJB
-                                                                        <a href="{{ asset('storage/' . $unit->pivot->ppjb_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        Bukti Kepemilikan
+                                                                        @php
+                                                                            $ppjbDocuments = json_decode($unit->pivot->ppjb_document);
+                                                                            if (!is_array($ppjbDocuments)) {
+                                                                                $ppjbDocuments = [$unit->pivot->ppjb_document];
+                                                                            }
+                                                                        @endphp
+                                                                        <div>
+                                                                            @foreach ($ppjbDocuments as $doc)
+                                                                                <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
+                                                                            @endforeach
+                                                                        </div>
                                                                     </li>
                                                                 @endif
                                                                 @if ($unit->pivot->bukti_lunas_document)
@@ -153,7 +168,7 @@
                                                                 @endif
                                                                 @if ($unit->pivot->civil_documents)
                                                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                        KTP / Identitas
+                                                                        KTP
                                                                         @php
                                                                             $civilDocuments = json_decode($unit->pivot->civil_documents);
                                                                         @endphp
@@ -179,7 +194,7 @@
                                                                 @endif
                                                                 @if ($unit->pivot->family_card)
                                                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                        Kartu Keluarga
+                                                                        KK/akte nikah
                                                                         <a href="{{ asset('storage/' . $unit->pivot->family_card) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
                                                                     </li>
                                                                 @endif
@@ -192,7 +207,17 @@
                                                                 @if ($unit->pivot->company_documents)
                                                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                                                         Dokumen Perusahaan
-                                                                        <a href="{{ asset('storage/' . $unit->pivot->company_documents) }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                                                                        @php
+                                                                            $companyDocuments = json_decode($unit->pivot->company_documents);
+                                                                            if (!is_array($companyDocuments)) {
+                                                                                $companyDocuments = [$unit->pivot->company_documents];
+                                                                            }
+                                                                        @endphp
+                                                                        <div>
+                                                                            @foreach ($companyDocuments as $doc)
+                                                                                <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">File {{ $loop->iteration }}</a>
+                                                                            @endforeach
+                                                                        </div>
                                                                     </li>
                                                                 @endif
                                                                 @if (!$unit->pivot->ownership_proof && !$unit->pivot->power_of_attorney && !$unit->pivot->identity_documents && !$unit->pivot->family_card && !$unit->pivot->company_documents && !$unit->pivot->ppjb_document && !$unit->pivot->bukti_lunas_document && !$unit->pivot->sjb_shm_document && !$unit->pivot->civil_documents)

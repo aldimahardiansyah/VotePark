@@ -74,6 +74,10 @@
     <div class="container-fluid py-5">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
+                <!-- Logo -->
+                <div class="text-center mb-3">
+                    <img src="{{ asset('img/indoland-logo.png') }}" alt="Indoland Logo" style="max-height: 80px;">
+                </div>
                 @livewire('event-presentation', ['event' => $event])
             </div>
         </div>
