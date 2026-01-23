@@ -122,10 +122,6 @@
                                     <td class="text-muted">NPP</td>
                                     <td><strong id="infoNpp">-</strong></td>
                                 </tr>
-                                <tr>
-                                    <td class="text-muted">Email</td>
-                                    <td><strong id="infoEmail">-</strong></td>
-                                </tr>
                             </table>
                         </div>
 
@@ -191,14 +187,15 @@
                             <p class="text-muted small">Silakan unggah dokumen berikut sesuai kebutuhan:</p>
 
                             <div class="mb-3">
-                                <label for="civil_documents" class="form-label">Dokumen Kependudukan (KTP & KK) - dapat upload lebih dari satu file</label>
+                                <label for="civil_documents" class="form-label">KTP - dapat upload lebih dari satu file</label>
                                 <input type="file" class="form-control" id="civil_documents" name="civil_documents[]" accept="image/*,.pdf" multiple>
                                 <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
                             </div>
 
                             <div class="mb-3">
-                                <label for="ppjb_document" class="form-label">File PPJB (Gambar/PDF, max 7MB)</label>
-                                <input type="file" class="form-control" id="ppjb_document" name="ppjb_document" accept="image/*,.pdf">
+                                <label for="ppjb_document" class="form-label">Bukti Kepemilikan - dapat upload lebih dari satu file (Gambar/PDF, max 7MB per file)</label>
+                                <input type="file" class="form-control" id="ppjb_document" name="ppjb_document[]" accept="image/*,.pdf" multiple>
+                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
                             </div>
 
                             <div class="mb-3">
@@ -229,13 +226,14 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="family_card" class="form-label">Kartu Keluarga (KK) - jika saudara/anak/orang tua</label>
+                                <label for="family_card" class="form-label">KK/akte nikah - jika saudara/anak/orang tua</label>
                                 <input type="file" class="form-control" id="family_card" name="family_card" accept="image/*,.pdf">
                             </div>
 
                             <div class="mb-3">
-                                <label for="company_documents" class="form-label">Dokumen Perusahaan (Akta Pendirian & Akta Perubahan) - jika perusahaan</label>
-                                <input type="file" class="form-control" id="company_documents" name="company_documents" accept="image/*,.pdf">
+                                <label for="company_documents" class="form-label">Dokumen Perusahaan - jika perusahaan (dapat upload lebih dari satu file)</label>
+                                <input type="file" class="form-control" id="company_documents" name="company_documents[]" accept="image/*,.pdf" multiple>
+                                <small class="form-text text-muted">Anda dapat memilih beberapa file sekaligus.</small>
                             </div>
                         </div>
 
@@ -281,7 +279,6 @@
                     $('#infoCode').text(info.code || '-');
                     $('#infoName').text(info.name || '-');
                     $('#infoNpp').text(Number(info.npp || 0).toFixed(2));
-                    $('#infoEmail').text(info.email || '-');
                     $('#unitInfo').addClass('show');
                     $('#attendeeSection').show();
                     $('#emailField').show();

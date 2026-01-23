@@ -31,6 +31,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('event/approve-participant', [EventController::class, 'approveParticipant'])->name('event.approve-participant');
     Route::post('event/reject-participant', [EventController::class, 'rejectParticipant'])->name('event.reject-participant');
     Route::get('event/{event}/rejected-participants', [EventController::class, 'rejectedParticipants'])->name('event.rejected-participants');
+    Route::get('event/{event}/participant/{unit}/edit', [EventController::class, 'editParticipant'])->name('event.edit-participant');
+    Route::put('event/{event}/participant/{unit}/update', [EventController::class, 'updateParticipant'])->name('event.update-participant');
 
     Route::post('vote/import', [VoteController::class, 'import'])->name('vote.import');
     Route::get('vote/{vote}', [VoteController::class, 'show'])->name('vote.show');

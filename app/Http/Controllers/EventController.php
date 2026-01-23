@@ -243,13 +243,132 @@ class EventController extends Controller
         return view('contents.event.rejected-participants', compact('event'));
     }
 
+    public function editParticipant(Event $event, Unit $unit)
+    {
+        // Check if unit is registered for this event
+        $participant = $event->units()->where('unit_id', $unit->id)->first();
+        if (!$participant) {
+            return redirect()->route('event.show', $event->id)->with('error', 'Participant not found.');
+        }
+
+        return view('contents.event.edit-participant', compact('event', 'unit', 'participant'));
+    }
+
+    public function updateParticipant(Request $request, Event $event, Unit $unit)
+    {
+        // Check if unit is registered for this event
+        if (!$event->units()->where('unit_id', $unit->id)->exists()) {
+            return redirect()->route('event.show', $event->id)->with('error', 'Participant not found.');
+        }
+
+        $validationRules = [
+            'email' => 'nullable|email',
+            'phone_number' => 'nullable|string|max:20',
+            'attendee_name' => 'required|string|max:255',
+            'attendance_type' => 'required|in:owner,representative',
+            'ppjb_document.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'bukti_lunas_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'sjb_shm_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'civil_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'power_of_attorney' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'identity_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'family_card' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'company_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+        ];
+
+        $request->validate($validationRules);
+
+        $userEmail = $unit->user->email ?? '';
+        $defaultDomain = '@' . config('app.default_email_domain', 'proapps.id');
+
+        // Check if email ends with default domain and custom email is provided
+        $registeredEmail = $userEmail;
+        if (str_ends_with($userEmail, $defaultDomain) && $request->filled('email')) {
+            $registeredEmail = $request->email;
+        } elseif (!str_ends_with($userEmail, $defaultDomain)) {
+            $registeredEmail = $userEmail;
+        }
+
+        // Get current participant data
+        $currentParticipant = $event->units()->where('unit_id', $unit->id)->first();
+        
+        // Prepare update data
+        $updateData = [
+            'registered_email' => $registeredEmail,
+            'phone_number' => $request->phone_number,
+            'attendee_name' => $request->attendee_name,
+            'attendance_type' => $request->attendance_type,
+        ];
+
+        // Handle file uploads - keep existing files if not uploading new ones
+        $singleFileFields = ['bukti_lunas_document', 'sjb_shm_document', 'power_of_attorney', 'family_card'];
+
+        foreach ($singleFileFields as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $filename = time() . '_' . $field . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $updateData[$field] = $path;
+            }
+        }
+
+        // Handle multiple PPJB/Bukti Kepemilikan documents
+        if ($request->hasFile('ppjb_document')) {
+            $ppjbPaths = [];
+            foreach ($request->file('ppjb_document') as $index => $file) {
+                $filename = time() . '_ppjb_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $ppjbPaths[] = $path;
+            }
+            $updateData['ppjb_document'] = json_encode($ppjbPaths);
+        }
+
+        // Handle multiple civil documents (KTP for owner)
+        if ($request->hasFile('civil_documents')) {
+            $civilPaths = [];
+            foreach ($request->file('civil_documents') as $index => $file) {
+                $filename = time() . '_civil_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $civilPaths[] = $path;
+            }
+            $updateData['civil_documents'] = json_encode($civilPaths);
+        }
+
+        // Handle multiple identity documents
+        if ($request->hasFile('identity_documents')) {
+            $identityPaths = [];
+            foreach ($request->file('identity_documents') as $index => $file) {
+                $filename = time() . '_identity_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $identityPaths[] = $path;
+            }
+            $updateData['identity_documents'] = json_encode($identityPaths);
+        }
+
+        // Handle multiple company documents
+        if ($request->hasFile('company_documents')) {
+            $companyPaths = [];
+            foreach ($request->file('company_documents') as $index => $file) {
+                $filename = time() . '_company_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $companyPaths[] = $path;
+            }
+            $updateData['company_documents'] = json_encode($companyPaths);
+        }
+
+        // Update participant
+        $event->units()->updateExistingPivot($unit->id, $updateData);
+
+        return redirect()->route('event.show', $event->id)->with('success', 'Participant updated successfully.');
+    }
+
     public function exportParticipants(Event $event)
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Set headers
-        $headers = ['No', 'Owner Name', 'Attendee Name', 'Attendance Type', 'NPP', 'Unit Code', 'Email', 'Phone Number', 'Status'];
+        $headers = ['No', 'Owner Name', 'Attendee Name', 'Attendance Type', 'NPP', 'Unit Code', 'Email', 'Phone Number', 'Status', 'Documents'];
         $column = 'A';
         foreach ($headers as $header) {
             $sheet->setCellValue($column . '1', $header);
@@ -273,6 +392,58 @@ class EventController extends Controller
             $sheet->setCellValue('G' . $row, $unit->pivot->registered_email ?? $unit->user->email);
             $sheet->setCellValue('H' . $row, $unit->pivot->phone_number ?? '-');
             $sheet->setCellValue('I' . $row, ucfirst($unit->pivot->status ?? 'approved'));
+            
+            // Compile document links
+            $documents = [];
+            $baseUrl = url('/');
+            
+            if ($unit->pivot->ppjb_document) {
+                $ppjbDocs = json_decode($unit->pivot->ppjb_document);
+                if (!is_array($ppjbDocs)) {
+                    $ppjbDocs = [$unit->pivot->ppjb_document];
+                }
+                foreach ($ppjbDocs as $idx => $doc) {
+                    $documents[] = 'Bukti Kepemilikan ' . ($idx + 1) . ': ' . $baseUrl . '/storage/' . $doc;
+                }
+            }
+            if ($unit->pivot->bukti_lunas_document) {
+                $documents[] = 'Bukti Lunas: ' . $baseUrl . '/storage/' . $unit->pivot->bukti_lunas_document;
+            }
+            if ($unit->pivot->sjb_shm_document) {
+                $documents[] = 'AJB/SHM: ' . $baseUrl . '/storage/' . $unit->pivot->sjb_shm_document;
+            }
+            if ($unit->pivot->civil_documents) {
+                $civilDocs = json_decode($unit->pivot->civil_documents);
+                foreach ($civilDocs as $idx => $doc) {
+                    $documents[] = 'KTP ' . ($idx + 1) . ': ' . $baseUrl . '/storage/' . $doc;
+                }
+            }
+            if ($unit->pivot->identity_documents) {
+                $identityDocs = json_decode($unit->pivot->identity_documents);
+                foreach ($identityDocs as $idx => $doc) {
+                    $documents[] = 'KTP/Identitas ' . ($idx + 1) . ': ' . $baseUrl . '/storage/' . $doc;
+                }
+            }
+            if ($unit->pivot->family_card) {
+                $documents[] = 'KK/akte nikah: ' . $baseUrl . '/storage/' . $unit->pivot->family_card;
+            }
+            if ($unit->pivot->power_of_attorney) {
+                $documents[] = 'Surat Kuasa: ' . $baseUrl . '/storage/' . $unit->pivot->power_of_attorney;
+            }
+            if ($unit->pivot->company_documents) {
+                $companyDocs = json_decode($unit->pivot->company_documents);
+                if (!is_array($companyDocs)) {
+                    $companyDocs = [$unit->pivot->company_documents];
+                }
+                foreach ($companyDocs as $idx => $doc) {
+                    $documents[] = 'Dokumen Perusahaan ' . ($idx + 1) . ': ' . $baseUrl . '/storage/' . $doc;
+                }
+            }
+            if ($unit->pivot->participant_photo) {
+                $documents[] = 'Foto Peserta: ' . $baseUrl . '/storage/' . $unit->pivot->participant_photo;
+            }
+            
+            $sheet->setCellValue('J' . $row, implode("\n", $documents));
             $row++;
         }
 
@@ -308,14 +479,14 @@ class EventController extends Controller
             'attendee_name' => 'required|string|max:255',
             'attendance_type' => 'required|in:owner,representative',
             'ownership_proof' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
-            'ppjb_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'ppjb_document.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'bukti_lunas_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'sjb_shm_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'civil_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'power_of_attorney' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'identity_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
             'family_card' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
-            'company_documents' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
+            'company_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:7168',
         ];
 
         // Add photo validation if event requires photo
@@ -347,7 +518,7 @@ class EventController extends Controller
 
         // Handle file uploads
         $uploadedFiles = [];
-        $singleFileFields = ['ownership_proof', 'ppjb_document', 'bukti_lunas_document', 'sjb_shm_document', 'power_of_attorney', 'family_card', 'company_documents'];
+        $singleFileFields = ['ownership_proof', 'bukti_lunas_document', 'sjb_shm_document', 'power_of_attorney', 'family_card'];
 
         foreach ($singleFileFields as $field) {
             if ($request->hasFile($field)) {
@@ -358,7 +529,18 @@ class EventController extends Controller
             }
         }
 
-        // Handle multiple civil documents (KTP & KK for owner)
+        // Handle multiple PPJB/Bukti Kepemilikan documents
+        if ($request->hasFile('ppjb_document')) {
+            $ppjbPaths = [];
+            foreach ($request->file('ppjb_document') as $index => $file) {
+                $filename = time() . '_ppjb_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $ppjbPaths[] = $path;
+            }
+            $uploadedFiles['ppjb_document'] = json_encode($ppjbPaths);
+        }
+
+        // Handle multiple civil documents (KTP for owner)
         if ($request->hasFile('civil_documents')) {
             $civilPaths = [];
             foreach ($request->file('civil_documents') as $index => $file) {
@@ -378,6 +560,17 @@ class EventController extends Controller
                 $identityPaths[] = $path;
             }
             $uploadedFiles['identity_documents'] = json_encode($identityPaths);
+        }
+
+        // Handle multiple company documents
+        if ($request->hasFile('company_documents')) {
+            $companyPaths = [];
+            foreach ($request->file('company_documents') as $index => $file) {
+                $filename = time() . '_company_' . $index . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('event_documents/' . $event->id, $filename, 'public');
+                $companyPaths[] = $path;
+            }
+            $uploadedFiles['company_documents'] = json_encode($companyPaths);
         }
 
         // Handle photo capture (base64 data)
