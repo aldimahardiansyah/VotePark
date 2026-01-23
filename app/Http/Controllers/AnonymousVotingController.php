@@ -141,7 +141,7 @@ class AnonymousVotingController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'sequence_number' => 'required|integer|min:1',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ]);
 
         $photoPath = null;
@@ -169,7 +169,7 @@ class AnonymousVotingController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'sequence_number' => 'required|integer|min:1',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
         ]);
 
         $updateData = [
